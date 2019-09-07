@@ -18,6 +18,8 @@
 #include "GameFramework/Controller.h"
 #include "UObject/ConstructorHelpers.h"
 #include "GameFramework/PlayerController.h"
+#include "TimerManager.h"
+#include "Public/DrawDebugHelpers.h"
 
 #ifndef HMD_MODULE_INCLUDED
 #define HMD_MODULE_INCLUDED 0
@@ -32,6 +34,56 @@
 const FName AChuckinProtoPawn::LookUpBinding("LookUp");
 const FName AChuckinProtoPawn::LookRightBinding("LookRight");
 const FName AChuckinProtoPawn::EngineAudioRPM("RPM");
+
+void AChuckinProtoPawn::StartFire()
+{
+	// This makes it so you cannot single fire faster than you can automatic fire
+	// Use greatest of first or 2nd value, clamps between 0 and other value
+	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0.0f);
+
+	//float FirstDelay = 0.f;
+	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AChuckinProtoPawn::Fire, TimeBetweenShots, true, FirstDelay);
+}
+
+void AChuckinProtoPawn::StopFire()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
+}
+
+void AChuckinProtoPawn::Fire()
+{
+	UE_LOG(LogTemp, Warning, TEXT("FIRE!"));
+	if (ProjectileClass)
+	{
+		//FVector EyeLocation;
+		
+		//FRotator EyeRotation2;
+		//GetActorEyesViewPoint(EyeLocation, EyeRotation2);
+		FRotator EyeRotation;
+		EyeRotation = GetActorRotation();
+		//EyeRotation.Pitch += 30.f;
+		//EyeRotation.Roll -= 30.f;
+
+		FVector MuzzleLocation = GetMesh()->GetSocketLocation(MuzzleSocketName);
+		//MuzzleLocation.Z += 50.f;
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Instigator = this;
+		SpawnParams.Owner = this;
+		
+
+		//DrawDebugLine(GetWorld(), MuzzleLocation, MuzzleLocation + TestRotation.Vector() * 300.f, FColor::White, false, 5.f, 0, 5.f);
+		//DrawDebugLine(GetWorld(), MuzzleLocation, MuzzleLocation + TestRotation.Vector() * 300.f, FColor::Blue, false, 5.f, 0, 5.f);
+
+		GetWorld()->SpawnActor<AActor>(ProjectileClass, MuzzleLocation, EyeRotation, SpawnParams);
+
+		LastFireTime = GetWorld()->TimeSeconds;
+	}
+
+
+
+}
 
 #define LOCTEXT_NAMESPACE "VehiclePawn"
 
@@ -175,6 +227,12 @@ AChuckinProtoPawn::AChuckinProtoPawn()
 
 	bIsLowFriction = false;
 	bInReverseGear = false;
+
+	// NEW STUFF
+	// bullets per minute
+	RateOfFire = 50.f;
+	MuzzleSocketName = "ChickenFire";
+
 }
 
 void AChuckinProtoPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -194,6 +252,9 @@ void AChuckinProtoPawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("SwitchCamera", IE_Pressed, this, &AChuckinProtoPawn::OnToggleCamera);
 
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AChuckinProtoPawn::OnResetVR); 
+
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AChuckinProtoPawn::StartFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AChuckinProtoPawn::StopFire);
 }
 
 void AChuckinProtoPawn::MoveForward(float Val)
@@ -302,6 +363,8 @@ void AChuckinProtoPawn::BeginPlay()
 	EnableIncarView(bWantInCar);
 	// Start an engine sound playing
 	EngineSoundComponent->Play();
+
+	TimeBetweenShots = 60.f / RateOfFire;
 }
 
 void AChuckinProtoPawn::OnResetVR()

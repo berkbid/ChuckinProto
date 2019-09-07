@@ -112,6 +112,33 @@ public:
 	static const FName LookRightBinding;
 	static const FName EngineAudioRPM;
 
+	// NEW STUFF BELOW
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StartFire();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StopFire();
+
+	FTimerHandle TimerHandle_TimeBetweenShots;
+
+	// Derived from RateOfFire
+	float TimeBetweenShots;
+
+	float LastFireTime;
+
+	void Fire();
+
+	/* RPM - Bullets per minute fired by weapon */
+	UPROPERTY(EditDefaultsOnly, Category = "Chicken")
+	float RateOfFire;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Chicken")
+	TSubclassOf<AActor> ProjectileClass;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Chicken")
+	FName MuzzleSocketName;
+
 private:
 	/** 
 	 * Activate In-Car camera. Enable camera and sets visibility of incar hud display
@@ -144,4 +171,5 @@ public:
 	FORCEINLINE UTextRenderComponent* GetInCarGear() const { return InCarGear; }
 	/** Returns EngineSoundComponent subobject **/
 	FORCEINLINE UAudioComponent* GetEngineSoundComponent() const { return EngineSoundComponent; }
+		
 };

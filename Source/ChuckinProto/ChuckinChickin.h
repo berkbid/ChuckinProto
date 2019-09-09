@@ -46,6 +46,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Explosion")
 	float SecondsTillExplode;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Explosion")
+	float DamageRadius;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Explosion")
+	bool bExpldeOnHit;
+
+	bool bIsExploded;
+
+
 public:	
+
+	UFUNCTION()
+	void OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 };

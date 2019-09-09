@@ -35,13 +35,20 @@ const FName AChuckinProtoPawn::LookUpBinding("LookUp");
 const FName AChuckinProtoPawn::LookRightBinding("LookRight");
 const FName AChuckinProtoPawn::EngineAudioRPM("RPM");
 
+static int32 DebugCarDrawing = 0;
+FAutoConsoleVariableRef CVARDebugCarDrawing(
+	TEXT("CHUCKIN.DebugCar"),
+	DebugCarDrawing,
+	TEXT("Draw Debug Lines for Car"),
+	ECVF_Cheat);
+
 void AChuckinProtoPawn::StartFire()
 {
 	// This makes it so you cannot single fire faster than you can automatic fire
 	// Use greatest of first or 2nd value, clamps between 0 and other value
 	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0.0f);
 
-	//float FirstDelay = 0.f;
+	ChickenYawOffset = 0.f;
 	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AChuckinProtoPawn::Fire, TimeBetweenShots, true, FirstDelay);
 }
 
@@ -50,39 +57,62 @@ void AChuckinProtoPawn::StopFire()
 	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
 }
 
+void AChuckinProtoPawn::StartFireRight()
+{
+	// This makes it so you cannot single fire faster than you can automatic fire
+	// Use greatest of first or 2nd value, clamps between 0 and other value
+	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0.0f);
+
+	ChickenYawOffset = 90.f;
+	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AChuckinProtoPawn::Fire, TimeBetweenShots, true, FirstDelay);
+}
+
+void AChuckinProtoPawn::StopFireRight()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
+}
+
+void AChuckinProtoPawn::StartFireLeft()
+{
+	// This makes it so you cannot single fire faster than you can automatic fire
+	// Use greatest of first or 2nd value, clamps between 0 and other value
+	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0.0f);
+
+	ChickenYawOffset = -90.f;
+	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AChuckinProtoPawn::Fire, TimeBetweenShots, true, FirstDelay);
+}
+
+void AChuckinProtoPawn::StopFireLeft()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
+}
+
 void AChuckinProtoPawn::Fire()
 {
-	UE_LOG(LogTemp, Warning, TEXT("FIRE!"));
+	//UE_LOG(LogTemp, Warning, TEXT("FIRE!"));
 	if (ProjectileClass)
 	{
-		//FVector EyeLocation;
-		
-		//FRotator EyeRotation2;
-		//GetActorEyesViewPoint(EyeLocation, EyeRotation2);
 		FRotator EyeRotation;
 		EyeRotation = GetActorRotation();
-		//EyeRotation.Pitch += 30.f;
-		//EyeRotation.Roll -= 30.f;
+		EyeRotation.Yaw += ChickenYawOffset;
+		EyeRotation.Pitch += ChickenPitchOffset;
 
 		FVector MuzzleLocation = GetMesh()->GetSocketLocation(MuzzleSocketName);
-		//MuzzleLocation.Z += 50.f;
 
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		SpawnParams.Instigator = this;
 		SpawnParams.Owner = this;
 		
-
-		//DrawDebugLine(GetWorld(), MuzzleLocation, MuzzleLocation + TestRotation.Vector() * 300.f, FColor::White, false, 5.f, 0, 5.f);
-		//DrawDebugLine(GetWorld(), MuzzleLocation, MuzzleLocation + TestRotation.Vector() * 300.f, FColor::Blue, false, 5.f, 0, 5.f);
+		if (DebugCarDrawing)
+		{
+			DrawDebugLine(GetWorld(), MuzzleLocation, MuzzleLocation + EyeRotation.Vector() * 300.f, FColor::Blue, false, 5.f, 0, 5.f);
+		}
 
 		GetWorld()->SpawnActor<AActor>(ProjectileClass, MuzzleLocation, EyeRotation, SpawnParams);
 
 		LastFireTime = GetWorld()->TimeSeconds;
 	}
-
-
-
 }
 
 #define LOCTEXT_NAMESPACE "VehiclePawn"
@@ -232,6 +262,8 @@ AChuckinProtoPawn::AChuckinProtoPawn()
 	// bullets per minute
 	RateOfFire = 50.f;
 	MuzzleSocketName = "ChickenFire";
+	ChickenYawOffset = 0.f;
+	ChickenPitchOffset = 0.f;
 
 }
 
@@ -255,7 +287,14 @@ void AChuckinProtoPawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AChuckinProtoPawn::StartFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AChuckinProtoPawn::StopFire);
+
+	PlayerInputComponent->BindAction("FireRight", IE_Pressed, this, &AChuckinProtoPawn::StartFireRight);
+	PlayerInputComponent->BindAction("FireRight", IE_Released, this, &AChuckinProtoPawn::StopFireRight);
+
+	PlayerInputComponent->BindAction("FireLeft", IE_Pressed, this, &AChuckinProtoPawn::StartFireLeft);
+	PlayerInputComponent->BindAction("FireLeft", IE_Released, this, &AChuckinProtoPawn::StopFireLeft);
 }
+
 
 void AChuckinProtoPawn::MoveForward(float Val)
 {
@@ -365,6 +404,8 @@ void AChuckinProtoPawn::BeginPlay()
 	EngineSoundComponent->Play();
 
 	TimeBetweenShots = 60.f / RateOfFire;
+
+
 }
 
 void AChuckinProtoPawn::OnResetVR()

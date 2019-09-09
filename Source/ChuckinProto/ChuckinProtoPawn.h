@@ -120,6 +120,23 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	void StopFire();
 
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StartFireRight();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StopFireRight();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StartFireLeft();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StopFireLeft();
+
+	float ChickenYawOffset;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Chicken")
+	float ChickenPitchOffset;
+
 	FTimerHandle TimerHandle_TimeBetweenShots;
 
 	// Derived from RateOfFire

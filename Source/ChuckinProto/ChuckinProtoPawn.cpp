@@ -20,6 +20,7 @@
 #include "GameFramework/PlayerController.h"
 #include "TimerManager.h"
 #include "Public/DrawDebugHelpers.h"
+#include "Components/SceneComponent.h"
 
 #ifndef HMD_MODULE_INCLUDED
 #define HMD_MODULE_INCLUDED 0
@@ -199,11 +200,17 @@ AChuckinProtoPawn::AChuckinProtoPawn()
 	// Set the inertia scale. This controls how the mass of the vehicle is distributed.
 	Vehicle4W->InertiaTensorScale = FVector(1.0f, 1.333f, 1.2f);
 
+	// Craete Azimuth Gimbal to attach Spring Arm to
+	AzimuthGimbal = CreateDefaultSubobject<USceneComponent>("AzimuthGimbal");
+	AzimuthGimbal->SetupAttachment(RootComponent);
+
 	// Create a spring arm component for our chase camera
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetRelativeLocation(FVector(0.0f, 0.0f, 34.0f));
 	SpringArm->SetWorldRotation(FRotator(-20.0f, 0.0f, 0.0f));
-	SpringArm->SetupAttachment(RootComponent);
+
+	//Attach to Azimuth Gimbal instead
+	SpringArm->SetupAttachment(AzimuthGimbal);
 	SpringArm->TargetArmLength = 125.0f;
 	SpringArm->bEnableCameraLag = false;
 	SpringArm->bEnableCameraRotationLag = false;

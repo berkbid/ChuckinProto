@@ -17,10 +17,16 @@ UCLASS(config=Game)
 class AChuckinProtoPawn : public AWheeledVehicle
 {
 	GENERATED_BODY()
+		
+
 
 	/** Spring arm that will offset the camera */
 	UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* SpringArm;
+
+	/** Azimuth Gimbal to attach Spring arm for camera to, for x direction mouse movement */
+	UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class USceneComponent* AzimuthGimbal;
 
 	/** Camera component that will be our viewpoint */
 	UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

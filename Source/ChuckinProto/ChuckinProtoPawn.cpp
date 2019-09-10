@@ -24,6 +24,8 @@
 #include "ChuckinPlayerController.h"
 #include "Classes/Kismet/GameplayStatics.h"
 #include "ChuckinChickin.h"
+#include "Classes/Sound/SoundBase.h" 
+#include "Kismet/GameplayStatics.h"
 
 #ifndef HMD_MODULE_INCLUDED
 #define HMD_MODULE_INCLUDED 0
@@ -108,6 +110,7 @@ void AChuckinProtoPawn::StopFireLeft()
 void AChuckinProtoPawn::Fire()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("FIRE!"));
+	UGameplayStatics::PlaySoundAtLocation(this, ShootingSoundEffect, GetActorLocation());
 	if (ProjectileClass)
 	{
 		FRotator EyeRotation;

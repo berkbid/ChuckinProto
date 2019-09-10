@@ -79,6 +79,9 @@ public:
 	UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly)
 	bool bInReverseGear;
 
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	class USoundBase* ShootingSoundEffect;
+
 	/** Initial offset of incar camera */
 	FVector InternalCameraOrigin;
 

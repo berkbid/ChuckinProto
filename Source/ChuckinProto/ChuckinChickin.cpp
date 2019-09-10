@@ -59,8 +59,8 @@ AChuckinChickin::AChuckinChickin()
 
 void AChuckinChickin::LaunchProjectile(float speed)
 {
-	float Time = GetWorld()->GetTimeSeconds();
-	UE_LOG(LogTemp, Warning, TEXT("%f: Projectile Fires at %f"), Time, speed);
+	//float Time = GetWorld()->GetTimeSeconds();
+	//UE_LOG(LogTemp, Warning, TEXT("%f: Projectile Fires at %f"), Time, speed);
 	MovementComp->SetVelocityInLocalSpace(FVector::ForwardVector * speed);
 	MovementComp->Activate(true);
 }
@@ -92,10 +92,17 @@ void AChuckinChickin::BeginPlay()
 
 void AChuckinChickin::Explode()
 {
-	UGameplayStatics::ApplyRadialDamage(this, 50.f, GetActorLocation(), DamageRadius, nullptr, TArray<AActor*>(), this, this->GetInstigatorController(), true, ECC_Visibility);
-	RadialForceComp->FireImpulse();
+	
+	UGameplayStatics::ApplyRadialDamage(this, 500.f, GetActorLocation(), DamageRadius, nullptr, TArray<AActor*>(), this, this->GetInstigatorController(), true, ECC_Visibility);
+	
+	if (RadialForceComp)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Radial force comp found"));
+		RadialForceComp->FireImpulse();
+	}
+	
 
-	// Debug sphere to show radius of the Radial Damage from chicken
+	 //Debug sphere to show radius of the Radial Damage from chicken
 	if (DebugChickenDrawing)
 	{
 		DrawDebugSphere(GetWorld(), GetActorLocation(), DamageRadius, 12, FColor::Red, false, 2.0f, 0, 3.0f);

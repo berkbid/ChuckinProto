@@ -17,10 +17,53 @@ class CHUCKINPROTO_API AChuckinPlayerController : public APlayerController
 
 
 public:
+	AChuckinPlayerController();
+
+	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<class UUserWidget> wCrosshair;
 
 	UUserWidget* MyCrosshair;
 
 	virtual void BeginPlay() override;
+
+	void GetSizeXY(FViewport* ViewPort, uint32 val);
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StartFireTarget();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StopFireTarget();
+
+	FTimerHandle TimerHandle_TimeBetweenShots;
+
+	// Derived from RateOfFire
+	float TimeBetweenShots;
+
+	float LastFireTime;
+
+
+protected:
+	virtual void SetupInputComponent() override;
+
+private:
+	UPROPERTY(EditAnywhere, Category = "Crosshair")
+	float CrossHairXLocation;
+
+	UPROPERTY(EditAnywhere, Category = "Crosshair")
+	float CrossHairYLocation;
+
+	UPROPERTY(EditAnywhere, Category = "Crosshair")
+	float LineTraceRange;
+
+	FVector2D ScreenLocation;
+
+	void SetScreenLocation();
+
+	class AChuckinProtoPawn* GetCar() const;
+
+	void FireAtCrosshair();
+
+	
 };

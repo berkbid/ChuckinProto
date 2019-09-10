@@ -47,6 +47,14 @@ AChuckinChickin::AChuckinChickin()
 
 }
 
+void AChuckinChickin::LaunchProjectile(float speed)
+{
+	float Time = GetWorld()->GetTimeSeconds();
+	UE_LOG(LogTemp, Warning, TEXT("%f: Projectile Fires at %f"), Time, speed);
+	MovementComp->SetVelocityInLocalSpace(FVector::ForwardVector * speed);
+	MovementComp->Activate(true);
+}
+
 // Called when the game starts or when spawned
 void AChuckinChickin::BeginPlay()
 {
@@ -72,6 +80,7 @@ void AChuckinChickin::BeginPlay()
 		//UE_LOG(LogTemp, Warning, TEXT("Found Instigator: %s"), *Instigator->GetName());
 		MeshComp->IgnoreActorWhenMoving(Instigator, true);
 	}
+	
 
 }
 

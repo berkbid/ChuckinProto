@@ -83,7 +83,7 @@ void AChuckinPlayerController::FireAtCrosshair()
 		FVector StartLocation = PlayerCameraManager->GetCameraLocation();
 		FVector EndLocation = StartLocation + LookDirection * LineTraceRange;
 
-		// Ignoring the controlled car from line trace collision for when the crosshair is on the tank
+		// Ignoring the controlled car from line trace collision for when the crosshair is on the Car
 		FCollisionQueryParams CollisionParams;
 		CollisionParams.AddIgnoredActor(GetCar());
 

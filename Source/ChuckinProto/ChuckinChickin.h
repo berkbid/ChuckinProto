@@ -18,6 +18,8 @@ public:
 	// Sets default values for this actor's properties
 	AChuckinChickin();
 
+	void LaunchProjectile(float speed);
+
 
 protected:
 

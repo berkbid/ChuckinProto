@@ -127,6 +127,12 @@ public:
 	void StopFire();
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StartFireTarget();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StopFireTarget();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
 	void StartFireRight();
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
@@ -151,13 +157,18 @@ public:
 	float LastFireTime;
 
 	void Fire();
+	
+	void FireAt(FVector HitLocation);
 
 	/* RPM - Bullets per minute fired by weapon */
 	UPROPERTY(EditDefaultsOnly, Category = "Chicken")
 	float RateOfFire;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Chicken")
-	TSubclassOf<AActor> ProjectileClass;
+	TSubclassOf<class AChuckinChickin> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Firing")
+	float LaunchSpeed;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Chicken")
 	FName MuzzleSocketName;

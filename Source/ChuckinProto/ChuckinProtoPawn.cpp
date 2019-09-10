@@ -21,6 +21,9 @@
 #include "TimerManager.h"
 #include "Public/DrawDebugHelpers.h"
 #include "Components/SceneComponent.h"
+#include "ChuckinPlayerController.h"
+#include "Classes/Kismet/GameplayStatics.h"
+#include "ChuckinChickin.h"
 
 #ifndef HMD_MODULE_INCLUDED
 #define HMD_MODULE_INCLUDED 0
@@ -56,6 +59,20 @@ void AChuckinProtoPawn::StartFire()
 void AChuckinProtoPawn::StopFire()
 {
 	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
+}
+
+void AChuckinProtoPawn::StartFireTarget()
+{
+	//AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetController());
+	//if (PC)
+	//{
+
+	//}
+}
+
+void AChuckinProtoPawn::StopFireTarget()
+{
+
 }
 
 void AChuckinProtoPawn::StartFireRight()
@@ -104,7 +121,7 @@ void AChuckinProtoPawn::Fire()
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		SpawnParams.Instigator = this;
 		SpawnParams.Owner = this;
-		
+
 		if (DebugCarDrawing)
 		{
 			DrawDebugLine(GetWorld(), MuzzleLocation, MuzzleLocation + EyeRotation.Vector() * 300.f, FColor::Blue, false, 5.f, 0, 5.f);
@@ -115,6 +132,46 @@ void AChuckinProtoPawn::Fire()
 		LastFireTime = GetWorld()->TimeSeconds;
 	}
 }
+
+void AChuckinProtoPawn::FireAt(FVector HitLocation)
+{
+	if (!ProjectileClass) { return; }
+	//UE_LOG(LogTemp, Warning, TEXT("Firing at: %s"), *HitLocation.ToString());
+	FVector StartLocation = GetMesh()->GetSocketLocation(MuzzleSocketName);
+	FVector OutLaunchVelocity(0);
+	
+	if (UGameplayStatics::SuggestProjectileVelocity(
+		this,
+		OutLaunchVelocity,
+		StartLocation,
+		HitLocation,
+		LaunchSpeed,
+		false,
+		0.f,
+		0.f,
+		ESuggestProjVelocityTraceOption::TraceFullPath
+		)
+	)
+	{
+		FVector AimDirection = OutLaunchVelocity.GetSafeNormal();
+		FRotator AimAsRotator = AimDirection.Rotation();
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Instigator = this;
+		SpawnParams.Owner = this;
+
+		//if (DebugCarDrawing)
+		//{
+		//	DrawDebugLine(GetWorld(), StartLocation, StartLocation + AimAsRotator.Vector() * 300.f, FColor::Blue, false, 5.f, 0, 5.f);
+		//}
+		AChuckinChickin* Chicken = Cast<AChuckinChickin>(GetWorld()->SpawnActor<AActor>(ProjectileClass, StartLocation, AimAsRotator, SpawnParams));
+		Chicken->LaunchProjectile(LaunchSpeed);
+
+		LastFireTime = GetWorld()->TimeSeconds;
+	}
+}
+
 
 #define LOCTEXT_NAMESPACE "VehiclePawn"
 
@@ -271,6 +328,7 @@ AChuckinProtoPawn::AChuckinProtoPawn()
 	MuzzleSocketName = "ChickenFire";
 	ChickenYawOffset = 0.f;
 	ChickenPitchOffset = 0.f;
+	LaunchSpeed = 10000.f;
 
 }
 
@@ -300,6 +358,10 @@ void AChuckinProtoPawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 	PlayerInputComponent->BindAction("FireLeft", IE_Pressed, this, &AChuckinProtoPawn::StartFireLeft);
 	PlayerInputComponent->BindAction("FireLeft", IE_Released, this, &AChuckinProtoPawn::StopFireLeft);
+
+
+	//PlayerInputComponent->BindAction("FireTarget", IE_Pressed, this, &AChuckinProtoPawn::StartFireTarget);
+	//PlayerInputComponent->BindAction("FireTarget", IE_Released, this, &AChuckinProtoPawn::StopFireTarget);
 }
 
 

@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Classes/Sound/SoundBase.h"
+#include "Components/SceneComponent.h"
 
 static int32 DebugChickenDrawing = 0;
 FAutoConsoleVariableRef CVARDebugChickenDrawing(
@@ -20,12 +21,18 @@ FAutoConsoleVariableRef CVARDebugChickenDrawing(
 // Sets default values
 AChuckinChickin::AChuckinChickin()
 {
+
+	// Craete Azimuth Gimbal to attach Spring Arm to
+	//AzimuthGimbal = CreateDefaultSubobject<USceneComponent>("AzimuthGimbal");
+	//RootComponent = AzimuthGimbal;
+
 	// Create and setup a StaticMeshComponent
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetSimulatePhysics(true);
 	MeshComp->SetCollisionObjectType(ECC_PhysicsBody);
 	//MeshComp->OnComponentBeginOverlap.AddDynamic(this, &AChuckinChickin::OnOverlapBegin);
 	RootComponent = MeshComp;
+	//MeshComp->SetupAttachment(RootComponent);
 	
 
 	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("MovementComp"));
@@ -53,7 +60,7 @@ AChuckinChickin::AChuckinChickin()
 void AChuckinChickin::LaunchProjectile(float speed)
 {
 	float Time = GetWorld()->GetTimeSeconds();
-	//UE_LOG(LogTemp, Warning, TEXT("%f: Projectile Fires at %f"), Time, speed);
+	UE_LOG(LogTemp, Warning, TEXT("%f: Projectile Fires at %f"), Time, speed);
 	MovementComp->SetVelocityInLocalSpace(FVector::ForwardVector * speed);
 	MovementComp->Activate(true);
 }

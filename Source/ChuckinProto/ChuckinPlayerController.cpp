@@ -22,7 +22,7 @@ AChuckinPlayerController::AChuckinPlayerController()
 	SetScreenLocation();
 
 	TimeBetweenShots = 0.5f;
-
+	RateOfFire = 200.f;
 }
 
 void AChuckinPlayerController::BeginPlay()
@@ -39,6 +39,8 @@ void AChuckinPlayerController::BeginPlay()
 		}
 	}
 	SetScreenLocation();
+
+	TimeBetweenShots = 60.f / RateOfFire;
 }
 
 // Get world location of linetrace through crosshair, true if hits landscape
@@ -69,7 +71,7 @@ void AChuckinPlayerController::FireAtCrosshair()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("PC: No Owned Car"));
 	if (!GetCar()) { return; }
-	UE_LOG(LogTemp, Warning, TEXT("PC: Found Owned Car"));
+	//UE_LOG(LogTemp, Warning, TEXT("PC: Found Owned Car"));
 	FVector CameraLocation;
 	FVector LookDirection;
 
@@ -125,7 +127,7 @@ void AChuckinPlayerController::GetSizeXY(FViewport* ViewPort, uint32 val)
 
 void AChuckinPlayerController::StartFireTarget()
 {
-	UE_LOG(LogTemp, Warning, TEXT("PC::StartFire"));
+	//UE_LOG(LogTemp, Warning, TEXT("PC::StartFire"));
 	// This makes it so you cannot single fire faster than you can automatic fire
 	// Use greatest of first or 2nd value, clamps between 0 and other value
 	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0.0f);
@@ -135,7 +137,7 @@ void AChuckinPlayerController::StartFireTarget()
 
 void AChuckinPlayerController::StopFireTarget()
 {
-	UE_LOG(LogTemp, Warning, TEXT("PC::StopFire"));
+	//UE_LOG(LogTemp, Warning, TEXT("PC::StopFire"));
 	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
 }
 

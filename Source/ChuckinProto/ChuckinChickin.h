@@ -58,6 +58,7 @@ protected:
 	bool bExpldeOnHit;
 
 	bool bIsExploded;
+	bool bHasHit;
 
 
 public:	

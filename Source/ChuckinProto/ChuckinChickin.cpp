@@ -29,9 +29,10 @@ AChuckinChickin::AChuckinChickin()
 	
 
 	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("MovementComp"));
-	MovementComp->InitialSpeed = 2000.f;
-	MovementComp->MaxSpeed = 2000.f;
+	//MovementComp->InitialSpeed = 2000.f;
+	//MovementComp->MaxSpeed = 2000.f;
 	MovementComp->bShouldBounce = true;
+	MovementComp->bAutoActivate = false;
 
 	RadialForceComp = CreateDefaultSubobject<URadialForceComponent>(TEXT("RadialForceComp"));
 	RadialForceComp->SetupAttachment(MeshComp);
@@ -45,13 +46,14 @@ AChuckinChickin::AChuckinChickin()
 	DamageRadius = 300.f;
 	bIsExploded = false;
 	bExpldeOnHit = false;
+	bHasHit = false;
 
 }
 
 void AChuckinChickin::LaunchProjectile(float speed)
 {
 	float Time = GetWorld()->GetTimeSeconds();
-	UE_LOG(LogTemp, Warning, TEXT("%f: Projectile Fires at %f"), Time, speed);
+	//UE_LOG(LogTemp, Warning, TEXT("%f: Projectile Fires at %f"), Time, speed);
 	MovementComp->SetVelocityInLocalSpace(FVector::ForwardVector * speed);
 	MovementComp->Activate(true);
 }
@@ -61,19 +63,14 @@ void AChuckinChickin::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//UE_LOG(LogTemp, Warning, TEXT("Begin Play Chicken!"));
 	OnDestroyed.AddDynamic(this, &AChuckinChickin::MyOnDestroyed);
-
+	MeshComp->OnComponentHit.AddDynamic(this, &AChuckinChickin::OnCompHit);
 	// Only hook onto the OnComponentHit event if we want to explode on hit
-	if (bExpldeOnHit)
+	if (!bExpldeOnHit)
 	{
-		MeshComp->OnComponentHit.AddDynamic(this, &AChuckinChickin::OnCompHit);
-	}
-	else
-	{
+
 		GetWorldTimerManager().SetTimer(TimerHandle_TimeUntilExplode, this, &AChuckinChickin::Explode, SecondsTillExplode);
 	}
-	
 	
 	// This will make the chicken ignore the "instigator" actor, which is the car who shot the chicken.
 	if (Instigator)
@@ -104,13 +101,22 @@ void AChuckinChickin::Explode()
 // This event will only be called if bExplodeOnHit is set to true
 void AChuckinChickin::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Chicken OnComponentHit Event Fired!!"));
-	UGameplayStatics::PlaySoundAtLocation(this, ExplodeSoundEffect, GetActorLocation());
-	if (!bIsExploded)
+	if (!bHasHit)
 	{
-		bIsExploded = true;
-		Explode();
+		UE_LOG(LogTemp, Warning, TEXT("Chicken Hit: %s"), *Hit.Location.ToString());
+		bHasHit = true;
 	}
+	
+	UGameplayStatics::PlaySoundAtLocation(this, ExplodeSoundEffect, GetActorLocation());
+	if (bExpldeOnHit)
+	{
+		if (!bIsExploded)
+		{
+			bIsExploded = true;
+			Explode();
+		}
+	}
+
 }
 
 void AChuckinChickin::MyOnDestroyed(AActor* DestroyedActor)

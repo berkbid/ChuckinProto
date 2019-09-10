@@ -63,19 +63,6 @@ void AChuckinProtoPawn::StopFire()
 	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
 }
 
-void AChuckinProtoPawn::StartFireTarget()
-{
-	//AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetController());
-	//if (PC)
-	//{
-
-	//}
-}
-
-void AChuckinProtoPawn::StopFireTarget()
-{
-
-}
 
 void AChuckinProtoPawn::StartFireRight()
 {
@@ -139,7 +126,7 @@ void AChuckinProtoPawn::Fire()
 void AChuckinProtoPawn::FireAt(FVector HitLocation)
 {
 	if (!ProjectileClass) { return; }
-	//UE_LOG(LogTemp, Warning, TEXT("Firing at: %s"), *HitLocation.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Firing at: %s"), *HitLocation.ToString());
 	FVector StartLocation = GetMesh()->GetSocketLocation(MuzzleSocketName);
 	FVector OutLaunchVelocity(0);
 	
@@ -152,7 +139,7 @@ void AChuckinProtoPawn::FireAt(FVector HitLocation)
 		false,
 		0.f,
 		0.f,
-		ESuggestProjVelocityTraceOption::TraceFullPath
+		ESuggestProjVelocityTraceOption::DoNotTrace
 		)
 	)
 	{
@@ -164,14 +151,18 @@ void AChuckinProtoPawn::FireAt(FVector HitLocation)
 		SpawnParams.Instigator = this;
 		SpawnParams.Owner = this;
 
-		//if (DebugCarDrawing)
-		//{
-		//	DrawDebugLine(GetWorld(), StartLocation, StartLocation + AimAsRotator.Vector() * 300.f, FColor::Blue, false, 5.f, 0, 5.f);
-		//}
+		if (DebugCarDrawing)
+		{
+			DrawDebugLine(GetWorld(), StartLocation, HitLocation, FColor::Blue, false, 5.f, 0, 2.f);
+		}
 		AChuckinChickin* Chicken = Cast<AChuckinChickin>(GetWorld()->SpawnActor<AActor>(ProjectileClass, StartLocation, AimAsRotator, SpawnParams));
 		Chicken->LaunchProjectile(LaunchSpeed);
 
-		LastFireTime = GetWorld()->TimeSeconds;
+		AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetController());
+		if (PC)
+		{
+			PC->LastFireTime = GetWorld()->TimeSeconds;
+		}
 	}
 }
 

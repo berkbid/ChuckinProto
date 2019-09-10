@@ -43,6 +43,9 @@ public:
 
 	float LastFireTime;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Chicken")
+	float RateOfFire;
+
 
 protected:
 	virtual void SetupInputComponent() override;

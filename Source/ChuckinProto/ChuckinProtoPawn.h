@@ -130,12 +130,6 @@ public:
 	void StopFire();
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
-	void StartFireTarget();
-
-	UFUNCTION(BlueprintCallable, Category = "Player")
-	void StopFireTarget();
-
-	UFUNCTION(BlueprintCallable, Category = "Player")
 	void StartFireRight();
 
 	UFUNCTION(BlueprintCallable, Category = "Player")

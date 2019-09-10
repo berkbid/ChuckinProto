@@ -8,6 +8,7 @@
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "Classes/Sound/SoundBase.h"
 
 static int32 DebugChickenDrawing = 0;
 FAutoConsoleVariableRef CVARDebugChickenDrawing(
@@ -104,6 +105,7 @@ void AChuckinChickin::Explode()
 void AChuckinChickin::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Chicken OnComponentHit Event Fired!!"));
+	UGameplayStatics::PlaySoundAtLocation(this, ExplodeSoundEffect, GetActorLocation());
 	if (!bIsExploded)
 	{
 		bIsExploded = true;

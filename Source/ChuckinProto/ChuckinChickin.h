@@ -45,6 +45,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	class UParticleSystem* ExplosionEffect;
 
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	class USoundBase* ExplodeSoundEffect;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Explosion")
 	float SecondsTillExplode;
 

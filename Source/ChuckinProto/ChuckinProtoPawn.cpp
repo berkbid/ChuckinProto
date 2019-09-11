@@ -97,9 +97,11 @@ void AChuckinProtoPawn::StopFireLeft()
 void AChuckinProtoPawn::Fire()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("FIRE!"));
-	UGameplayStatics::PlaySoundAtLocation(this, ShootingSoundEffect, GetActorLocation());
+	
 	if (ProjectileClass)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("FIRE!"));
+		UGameplayStatics::PlaySoundAtLocation(this, ShootingSoundEffect, GetActorLocation());
 		FRotator EyeRotation;
 		EyeRotation = GetActorRotation();
 		EyeRotation.Yaw += ChickenYawOffset;
@@ -127,6 +129,7 @@ void AChuckinProtoPawn::FireAt(FVector HitLocation)
 {
 	if (!ProjectileClass) { return; }
 	UE_LOG(LogTemp, Warning, TEXT("Firing at: %s"), *HitLocation.ToString());
+	UGameplayStatics::PlaySoundAtLocation(this, ShootingSoundEffect, GetActorLocation());
 	FVector StartLocation = GetMesh()->GetSocketLocation(MuzzleSocketName);
 	FVector OutLaunchVelocity(0);
 	

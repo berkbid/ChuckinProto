@@ -53,6 +53,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	class USoundBase* ExplodeSoundEffect;
 
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	class USoundBase* BouceSoundEffect;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Explosion")
 	float SecondsTillExplode;
 

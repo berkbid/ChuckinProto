@@ -74,19 +74,15 @@ void AChuckinChickin::BeginPlay()
 	MeshComp->OnComponentHit.AddDynamic(this, &AChuckinChickin::OnCompHit);
 	// Only hook onto the OnComponentHit event if we want to explode on hit
 	if (!bExpldeOnHit)
-	{
-
+	{		
 		GetWorldTimerManager().SetTimer(TimerHandle_TimeUntilExplode, this, &AChuckinChickin::Explode, SecondsTillExplode);
-	}
-	
+	}	
 	// This will make the chicken ignore the "instigator" actor, which is the car who shot the chicken.
 	if (Instigator)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Found Instigator: %s"), *Instigator->GetName());
 		MeshComp->IgnoreActorWhenMoving(Instigator, true);
 	}
-	
-
 }
 
 
@@ -119,14 +115,12 @@ void AChuckinChickin::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Chicken Hit: %s"), *Hit.Location.ToString());
 		bHasHit = true;
-	}
-	
-	UGameplayStatics::PlaySoundAtLocation(this, ExplodeSoundEffect, GetActorLocation());
+	}	
 	if (bExpldeOnHit)
-	{
+	{		
 		if (!bIsExploded)
 		{
-			bIsExploded = true;
+			bIsExploded = true;			
 			Explode();
 		}
 	}
@@ -136,6 +130,7 @@ void AChuckinChickin::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor
 void AChuckinChickin::MyOnDestroyed(AActor* DestroyedActor)
 {
 	// Plays explosion effect when destroyed
+	UGameplayStatics::PlaySoundAtLocation(this, ExplodeSoundEffect, GetActorLocation());
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
 
 }

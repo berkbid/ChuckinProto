@@ -71,7 +71,7 @@ void AChuckinAIController::FireAtPlayer()
 		// Look At Player
 		FVector NewDirection = HitLocation - StartLocation;
 		FRotator LookAtPlayer;
-		LookAtPlayer.Yaw = AimAsRotator.Yaw - 90.f;
+		LookAtPlayer.Yaw = AimAsRotator.Yaw + 90.f;
 		LookAtPlayer.Pitch = ControlledPawn->GetActorRotation().Pitch;
 		LookAtPlayer.Roll = ControlledPawn->GetActorRotation().Roll;
 

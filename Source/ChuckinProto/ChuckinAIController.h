@@ -22,8 +22,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Chicken")
 	TSubclassOf<class AChuckinChickin> ProjectileClass;
 
-public:
+	UPROPERTY(EditDefaultsOnly, Category = "Chicken")
+	float AITimeBetweenShotsMin;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Chicken")
+	float AITimeBetweenShotsMax;
+
+
+
+public:
+	AChuckinAIController();
 
 private:
 	virtual void BeginPlay() override;

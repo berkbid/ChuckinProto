@@ -10,6 +10,9 @@
 #include "DrawDebugHelpers.h"
 #include "Classes/Sound/SoundBase.h"
 #include "Components/SceneComponent.h"
+#include "ChuckinProtoPawn.h"
+#include "ChuckinAI.h"
+#include "Engine/StaticMeshActor.h"
 
 static int32 DebugChickenDrawing = 0;
 FAutoConsoleVariableRef CVARDebugChickenDrawing(
@@ -81,14 +84,24 @@ void AChuckinChickin::BeginPlay()
 	if (Instigator)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Found Instigator: %s"), *Instigator->GetName());
-		MeshComp->IgnoreActorWhenMoving(Instigator, true);
+
+		if (Cast<AChuckinAI>(Instigator))
+		{
+			MeshComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECR_Ignore);
+		}
+		else
+		{
+			MeshComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel3, ECR_Ignore);
+		}
 	}
+
+	
 }
 
 
 void AChuckinChickin::Explode()
 {
-	
+	bIsExploded = true;
 	UGameplayStatics::ApplyRadialDamage(this, 500.f, GetActorLocation(), DamageRadius, nullptr, TArray<AActor*>(), this, this->GetInstigatorController(), true, ECC_Visibility);
 	
 	if (RadialForceComp)
@@ -113,14 +126,39 @@ void AChuckinChickin::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor
 {
 	if (!bHasHit)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Chicken Hit: %s"), *Hit.Location.ToString());
 		bHasHit = true;
 	}	
+
+	if (!Cast<AStaticMeshActor>(Hit.Actor))
+	{
+		if (Cast<AChuckinProtoPawn>(Hit.Actor))
+		{
+			if (Hit.Actor != GetOwner())
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Chicken Hit ACTOR: %s"), *Hit.Actor->GetName());
+				Explode();
+			}
+		}
+		else if (Cast<AChuckinAI>(Hit.Actor))
+		{
+			if (Hit.Actor != Instigator)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Chicken Hit AI ACTOR: %s, Instigator: %s"), *Hit.Actor->GetName(), *Instigator->GetName());
+				Explode();
+			}
+
+		}
+		else if (Cast<AActor>(Hit.Actor))
+		{
+			Explode();
+		}
+	}
+
+
 	if (bExpldeOnHit)
 	{		
 		if (!bIsExploded)
 		{
-			bIsExploded = true;			
 			Explode();
 		}
 	}

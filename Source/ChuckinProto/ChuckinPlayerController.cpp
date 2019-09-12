@@ -9,6 +9,7 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "TimerManager.h"
+#include "ChuckinProtoGameMode.h"
 
 AChuckinPlayerController::AChuckinPlayerController()
 {
@@ -141,6 +142,19 @@ void AChuckinPlayerController::StopFireTarget()
 	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
 }
 
+void AChuckinPlayerController::RestartPlayerNew()
+{
+	//AChuckinProtoGameMode* GM = Cast<AChuckinProtoGameMode>(GetWorld()->GetAuthGameMode());
+	//if (GM)
+	//{
+	//	GM->RestartPlayer(this);
+	//}
+	
+	RestartLevel();
+	//RestartPlayer();
+	
+}
+
 
 void AChuckinPlayerController::SetupInputComponent()
 {
@@ -151,5 +165,7 @@ void AChuckinPlayerController::SetupInputComponent()
 	//InputComponent->BindAction
 	InputComponent->BindAction("FireTarget", IE_Pressed, this, &AChuckinPlayerController::StartFireTarget);
 	InputComponent->BindAction("FireTarget", IE_Released, this, &AChuckinPlayerController::StopFireTarget);
+
+	InputComponent->BindAction("RestartPlayer", IE_Pressed, this, &AChuckinPlayerController::RestartPlayerNew);
 
 }

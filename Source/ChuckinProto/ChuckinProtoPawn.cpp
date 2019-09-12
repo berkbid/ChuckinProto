@@ -48,82 +48,36 @@ FAutoConsoleVariableRef CVARDebugCarDrawing(
 	TEXT("Draw Debug Lines for Car"),
 	ECVF_Cheat);
 
-void AChuckinProtoPawn::StartFire()
-{
-	// This makes it so you cannot single fire faster than you can automatic fire
-	// Use greatest of first or 2nd value, clamps between 0 and other value
-	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0.0f);
-
-	ChickenYawOffset = 0.f;
-	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AChuckinProtoPawn::Fire, TimeBetweenShots, true, FirstDelay);
-}
-
-void AChuckinProtoPawn::StopFire()
-{
-	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
-}
-
-
-void AChuckinProtoPawn::StartFireRight()
-{
-	// This makes it so you cannot single fire faster than you can automatic fire
-	// Use greatest of first or 2nd value, clamps between 0 and other value
-	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0.0f);
-
-	ChickenYawOffset = 90.f;
-	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AChuckinProtoPawn::Fire, TimeBetweenShots, true, FirstDelay);
-}
-
-void AChuckinProtoPawn::StopFireRight()
-{
-	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
-}
-
-void AChuckinProtoPawn::StartFireLeft()
-{
-	// This makes it so you cannot single fire faster than you can automatic fire
-	// Use greatest of first or 2nd value, clamps between 0 and other value
-	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0.0f);
-
-	ChickenYawOffset = -90.f;
-	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AChuckinProtoPawn::Fire, TimeBetweenShots, true, FirstDelay);
-}
-
-void AChuckinProtoPawn::StopFireLeft()
-{
-	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
-}
-
-void AChuckinProtoPawn::Fire()
-{
-	//UE_LOG(LogTemp, Warning, TEXT("FIRE!"));
-	
-	if (ProjectileClass)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("FIRE!"));
-		UGameplayStatics::PlaySoundAtLocation(this, ShootingSoundEffect, GetActorLocation());
-		FRotator EyeRotation;
-		EyeRotation = GetActorRotation();
-		EyeRotation.Yaw += ChickenYawOffset;
-		EyeRotation.Pitch += ChickenPitchOffset;
-
-		FVector MuzzleLocation = GetMesh()->GetSocketLocation(MuzzleSocketName);
-
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Instigator = this;
-		SpawnParams.Owner = this;
-
-		if (DebugCarDrawing)
-		{
-			DrawDebugLine(GetWorld(), MuzzleLocation, MuzzleLocation + EyeRotation.Vector() * 300.f, FColor::Blue, false, 5.f, 0, 5.f);
-		}
-
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, MuzzleLocation, EyeRotation, SpawnParams);
-
-		LastFireTime = GetWorld()->TimeSeconds;
-	}
-}
+//void AChuckinProtoPawn::Fire()
+//{
+//	//UE_LOG(LogTemp, Warning, TEXT("FIRE!"));
+//	
+//	if (ProjectileClass)
+//	{
+//		UE_LOG(LogTemp, Warning, TEXT("FIRE!"));
+//		UGameplayStatics::PlaySoundAtLocation(this, ShootingSoundEffect, GetActorLocation());
+//		FRotator EyeRotation;
+//		EyeRotation = GetActorRotation();
+//		EyeRotation.Yaw += ChickenYawOffset;
+//		EyeRotation.Pitch += ChickenPitchOffset;
+//
+//		FVector MuzzleLocation = GetMesh()->GetSocketLocation(MuzzleSocketName);
+//
+//		FActorSpawnParameters SpawnParams;
+//		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+//		SpawnParams.Instigator = this;
+//		SpawnParams.Owner = this;
+//
+//		if (DebugCarDrawing)
+//		{
+//			DrawDebugLine(GetWorld(), MuzzleLocation, MuzzleLocation + EyeRotation.Vector() * 300.f, FColor::Blue, false, 5.f, 0, 5.f);
+//		}
+//
+//		GetWorld()->SpawnActor<AActor>(ProjectileClass, MuzzleLocation, EyeRotation, SpawnParams);
+//
+//		LastFireTime = GetWorld()->TimeSeconds;
+//	}
+//}
 
 void AChuckinProtoPawn::FireAt(FVector HitLocation)
 {
@@ -347,18 +301,8 @@ void AChuckinProtoPawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AChuckinProtoPawn::OnResetVR); 
 
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AChuckinProtoPawn::StartFire);
-	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AChuckinProtoPawn::StopFire);
+	
 
-	PlayerInputComponent->BindAction("FireRight", IE_Pressed, this, &AChuckinProtoPawn::StartFireRight);
-	PlayerInputComponent->BindAction("FireRight", IE_Released, this, &AChuckinProtoPawn::StopFireRight);
-
-	PlayerInputComponent->BindAction("FireLeft", IE_Pressed, this, &AChuckinProtoPawn::StartFireLeft);
-	PlayerInputComponent->BindAction("FireLeft", IE_Released, this, &AChuckinProtoPawn::StopFireLeft);
-
-
-	//PlayerInputComponent->BindAction("FireTarget", IE_Pressed, this, &AChuckinProtoPawn::StartFireTarget);
-	//PlayerInputComponent->BindAction("FireTarget", IE_Released, this, &AChuckinProtoPawn::StopFireTarget);
 }
 
 

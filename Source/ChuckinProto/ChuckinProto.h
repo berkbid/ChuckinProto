@@ -3,3 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#define COLLISION_AITRUCK					ECC_GameTraceChannel2
+#define COLLISION_PLAYERCAR					ECC_GameTraceChannel3

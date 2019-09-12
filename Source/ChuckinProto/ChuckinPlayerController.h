@@ -36,6 +36,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	void StopFireTarget();
 
+	void RestartPlayerNew();
 	FTimerHandle TimerHandle_TimeBetweenShots;
 
 	// Derived from RateOfFire

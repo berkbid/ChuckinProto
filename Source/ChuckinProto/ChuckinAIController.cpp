@@ -19,21 +19,27 @@ FAutoConsoleVariableRef CVARDebugAIDrawing(
 	TEXT("Draw Debug Lines for AI"),
 	ECVF_Cheat);
 
+AChuckinAIController::AChuckinAIController()
+{
+	AITimeBetweenShotsMin = 3.f;
+	AITimeBetweenShotsMax = 7.f;
+}
+
+
 void AChuckinAIController::BeginPlay()
 {
 	Super::BeginPlay();
 
 	ControlledPawn = Cast<AChuckinAI>(GetPawn());
 	PlayerPawn = Cast<AChuckinProtoPawn>(GetWorld()->GetFirstPlayerController()->GetPawn());
-
-	float AITimeBetweenShots = 5.f;
+	float AITimeBetweenShots = FMath::RandRange(AITimeBetweenShotsMin, AITimeBetweenShotsMax);
 	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AChuckinAIController::FireAtPlayer, AITimeBetweenShots, true, 3.f);
 
 }
 
 void AChuckinAIController::FireAtPlayer()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AI Pawn: %s, Player Pawn: %s"), *ControlledPawn->GetName(), *PlayerPawn->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("AI Pawn: %s, Player Pawn: %s"), *ControlledPawn->GetName(), *PlayerPawn->GetName());
 
 	if (!ProjectileClass) { return; }
 
@@ -74,12 +80,19 @@ void AChuckinAIController::FireAtPlayer()
 		LookAtPlayer.Yaw = AimAsRotator.Yaw + 90.f;
 		LookAtPlayer.Pitch = ControlledPawn->GetActorRotation().Pitch;
 		LookAtPlayer.Roll = ControlledPawn->GetActorRotation().Roll;
+		if (ControlledPawn)
+		{
+			ControlledPawn->SetActorRotation(LookAtPlayer);
+		}
+		
 
-		ControlledPawn->SetActorRotation(LookAtPlayer);
-
-		UE_LOG(LogTemp, Warning, TEXT("AI Location: %s"), *ControlledPawn->GetActorLocation().ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("AI Location: %s"), *ControlledPawn->GetActorLocation().ToString());
 		AChuckinChickin* Chicken = Cast<AChuckinChickin>(GetWorld()->SpawnActor<AActor>(ProjectileClass, StartLocation, AimAsRotator, SpawnParams));
 		//ControlledPawn->MoveIgnoreActorAdd(Chicken);
-		Chicken->LaunchProjectile(LaunchSpeed);
+		if (Chicken)
+		{
+			Chicken->LaunchProjectile(LaunchSpeed);
+		}
+		
 	}
 }

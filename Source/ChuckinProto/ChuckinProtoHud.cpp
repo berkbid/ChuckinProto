@@ -56,6 +56,7 @@ void AChuckinProtoHud::DrawHUD()
 			Canvas->DrawItem(GearTextItem);
 		}
 	}
+	//UE_LOG(LogTemp, Warning, TEXT("HUD DRAWN"));
 }
 
 #undef LOCTEXT_NAMESPACE

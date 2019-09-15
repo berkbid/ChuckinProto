@@ -285,6 +285,8 @@ void AChuckinProtoPawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AChuckinProtoPawn::OnResetVR); 
 
+	PlayerInputComponent->BindAction("FlipCar", IE_Pressed, this, &AChuckinProtoPawn::FlipCar);
+
 	
 
 }
@@ -412,6 +414,14 @@ void AChuckinProtoPawn::OnResetVR()
 		GetController()->SetControlRotation(FRotator());
 	}
 #endif // HMD_MODULE_INCLUDED
+}
+
+void AChuckinProtoPawn::FlipCar()
+{
+	FRotator NewRotation(0);
+	NewRotation.Yaw = GetActorRotation().Yaw;
+
+	SetActorRotation(NewRotation, ETeleportType::TeleportPhysics);
 }
 
 void AChuckinProtoPawn::UpdateHUDStrings()

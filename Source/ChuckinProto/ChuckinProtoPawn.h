@@ -123,6 +123,8 @@ public:
 	/** Handle reset VR device */
 	void OnResetVR();
 
+	void FlipCar();
+
 	static const FName LookUpBinding;
 	static const FName LookRightBinding;
 	static const FName EngineAudioRPM;

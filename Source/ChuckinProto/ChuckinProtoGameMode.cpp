@@ -69,15 +69,19 @@ void AChuckinProtoGameMode::HandleActorKilled(AActor* VictimActor, AActor* Kille
 	if (VictimActor && KillerActor && KillerController)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Actor Died: %s, Killed by : %s"), *VictimActor->GetName(), *KillerActor->Instigator->GetName());
-		AChuckinPlayerState* PS = Cast<AChuckinPlayerState>(KillerController->GetPawn()->GetPlayerState());
-		if (PS)
+
+		AChuckinProtoPawn* KillerPawn = Cast<AChuckinProtoPawn>(KillerController->GetPawn());
+		if (KillerPawn)
 		{
-			PS->AddScore(10.f);
+			AChuckinPlayerState* PS = Cast<AChuckinPlayerState>(KillerPawn->GetPlayerState());
+
+			if (PS)
+			{
+				PS->AddScore(10.f);
+			}
 		}
-		
 	}
 	
-
 }
 
 void AChuckinProtoGameMode::StartPlay()

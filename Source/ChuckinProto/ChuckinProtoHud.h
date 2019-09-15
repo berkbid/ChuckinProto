@@ -6,10 +6,19 @@
 #include "GameFramework/HUD.h"
 #include "ChuckinProtoHud.generated.h"
 
+class UTexture2D;
+
 UCLASS(config = Game)
 class AChuckinProtoHud : public AHUD
 {
 	GENERATED_BODY()
+
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Textures")
+	UTexture2D* CrosshairTex;
+
+
 
 public:
 	AChuckinProtoHud();
@@ -21,5 +30,6 @@ public:
 	// Begin AHUD interface
 	virtual void DrawHUD() override;
 	// End AHUD interface
+
 
 };

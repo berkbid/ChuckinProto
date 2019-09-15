@@ -7,6 +7,8 @@
 #include "Engine/World.h"
 #include "ChuckinProtoPawn.h"
 #include "ChuckinAI.h"
+#include "GameFramework/DamageType.h"
+#include "GameFramework/Controller.h"
 
 // Sets default values for this component's properties
 UChuckinHealthComponent::UChuckinHealthComponent()
@@ -34,7 +36,7 @@ void UChuckinHealthComponent::BeginPlay()
 }
 
 
-void UChuckinHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+void UChuckinHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Actor: %s, Took Damage: %f"), *DamagedActor->GetName(), Damage);
 	if (Damage <= 0.f || bIsDead)
@@ -50,12 +52,19 @@ void UChuckinHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Da
 		bIsDead = true;
 		if (MyOwner)
 		{
-			MyOwner->Destroy();
+			
 
 			AChuckinProtoGameMode* GM = Cast<AChuckinProtoGameMode>(GetWorld()->GetAuthGameMode());
 			if (GM)
 			{
-				GM->PrepareForStart();
+				// Need to broadcast BEFORE destroy() on owner, or we wont have reference
+				GM->OnActorKilled.Broadcast(GetOwner(), DamageCauser, InstigatedBy);
+				
+				// Destroy owner
+				MyOwner->Destroy();
+
+				// Tell Game Mode to Prepare to respawn
+				GM->PrepareForSpawn();
 			}
 			//if (AChuckinProtoPawn * ProtoPawn = Cast<AChuckinProtoPawn>(MyOwner))
 			//{

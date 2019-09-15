@@ -10,12 +10,6 @@
 AChuckinAI::AChuckinAI()
 {
 
-	//// Craete Azimuth Gimbal to attach Spring Arm to
-	//AzimuthGimbal = CreateDefaultSubobject<USceneComponent>("AzimuthGimbal");
-	////AzimuthGimbal->SetupAttachment(RootComponent);
-	//RootComponent = AzimuthGimbal;
-
-
 	// Create and setup a StaticMeshComponent
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetSimulatePhysics(true);
@@ -25,6 +19,7 @@ AChuckinAI::AChuckinAI()
 	//MeshComp->SetupAttachment(RootComponent);
 
 	HealthComp = CreateDefaultSubobject<UChuckinHealthComponent>("HealthComp");
+
 
 }
 

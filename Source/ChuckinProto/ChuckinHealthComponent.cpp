@@ -51,6 +51,12 @@ void UChuckinHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Da
 		if (MyOwner)
 		{
 			MyOwner->Destroy();
+
+			AChuckinProtoGameMode* GM = Cast<AChuckinProtoGameMode>(GetWorld()->GetAuthGameMode());
+			if (GM)
+			{
+				GM->PrepareForStart();
+			}
 			//if (AChuckinProtoPawn * ProtoPawn = Cast<AChuckinProtoPawn>(MyOwner))
 			//{
 			//	ProtoPawn->Destroy();
@@ -60,11 +66,7 @@ void UChuckinHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Da
 			//	AIPawn->Destroy();
 			//}
 		}
-		//AChuckinProtoGameMode* GM = Cast<AChuckinProtoGameMode>(GetWorld()->GetAuthGameMode());
-		//if (GM)
-		//{
-		//	 
-		//}
+
 	} 
 
 

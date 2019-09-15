@@ -3,3 +3,7 @@
 
 #include "ChuckinGameState.h"
 
+void AChuckinGameState::SetWaveState(EWaveState NewState)
+{
+	WaveState = NewState;
+}

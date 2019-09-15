@@ -43,6 +43,11 @@ void AChuckinAIController::FireAtPlayer()
 
 	if (!ProjectileClass) { return; }
 
+	// Look for player every time AI fires? Seems excessive.
+	PlayerPawn = Cast<AChuckinProtoPawn>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	
+	if (!PlayerPawn) { return; }
+
 	//UGameplayStatics::PlaySoundAtLocation(this, ShootingSoundEffect, GetActorLocation());
 	FVector StartLocation = ControlledPawn->GetActorLocation();
 	FVector OutLaunchVelocity(0);

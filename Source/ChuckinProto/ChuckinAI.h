@@ -26,6 +26,10 @@ protected:
 	//UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	//class USceneComponent* AzimuthGimbal;
 
+		/** Health component for player health */
+	UPROPERTY(Category = Health, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UChuckinHealthComponent* HealthComp;
+
 
 public:	
 

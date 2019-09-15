@@ -4,6 +4,7 @@
 #include "ChuckinAI.h"
 #include "Classes/Engine/StaticMesh.h"
 #include "Components/SceneComponent.h"
+#include "ChuckinHealthComponent.h"
 
 // Sets default values
 AChuckinAI::AChuckinAI()
@@ -22,6 +23,8 @@ AChuckinAI::AChuckinAI()
 	//MeshComp->OnComponentBeginOverlap.AddDynamic(this, &AChuckinChickin::OnOverlapBegin);
 	RootComponent = MeshComp;
 	//MeshComp->SetupAttachment(RootComponent);
+
+	HealthComp = CreateDefaultSubobject<UChuckinHealthComponent>("HealthComp");
 
 }
 

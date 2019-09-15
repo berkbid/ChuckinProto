@@ -7,6 +7,7 @@
 #include "CanvasItem.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/Engine.h"
+#include "Engine/Texture2D.h"
 
 // Needed for VR Headset
 #include "Engine.h"
@@ -21,11 +22,34 @@ AChuckinProtoHud::AChuckinProtoHud()
 {
 	static ConstructorHelpers::FObjectFinder<UFont> Font(TEXT("/Engine/EngineFonts/RobotoDistanceField"));
 	HUDFont = Font.Object;
+
+	//static ConstructorHelpers::FObjectFinder<UTexture2D> CrossHairTexture(TEXT("/Game/CrosshairTextures/T_Circle_Border_wStroke"));
+	//CrosshairTex = CrossHairTexture.Object;
 }
 
 void AChuckinProtoHud::DrawHUD()
 {
 	Super::DrawHUD();
+
+	// draw the crosshair
+	if (CrosshairTex)
+	{	
+		// find center of the Canvas
+		const FVector2D Center(Canvas->ClipX * 0.5f, Canvas->ClipY * 0.5f);
+
+		// offset by half the texture's dimensions so that the center of the texture aligns with the center of the Canvas
+		const FVector2D CrosshairDrawPosition((Center.X - 8.f),
+			(Center.Y - 8.f));
+
+		FCanvasTileItem TileItem(CrosshairDrawPosition, CrosshairTex->Resource, FLinearColor::White);
+		TileItem.BlendMode = SE_BLEND_Translucent;
+		Canvas->DrawItem(TileItem);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NO CROSSHAIR TEXTURE"));
+	}
+
 
 	// Calculate ratio from 720p
 	const float HUDXRatio = Canvas->SizeX / 1280.f;

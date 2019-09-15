@@ -54,6 +54,7 @@ AChuckinChickin::AChuckinChickin()
 	// Explosion default values
 	SecondsTillExplode = 1.f;
 	DamageRadius = 300.f;
+	DamageAmount = 50.f;
 	bIsExploded = false;
 	bExpldeOnHit = false;
 	bHasHit = false;
@@ -102,7 +103,8 @@ void AChuckinChickin::BeginPlay()
 void AChuckinChickin::Explode()
 {
 	bIsExploded = true;
-	UGameplayStatics::ApplyRadialDamage(this, 500.f, GetActorLocation(), DamageRadius, nullptr, TArray<AActor*>(), this, this->GetInstigatorController(), true, ECC_Visibility);
+	// Can add actors to ignore for applying radial damage
+	UGameplayStatics::ApplyRadialDamage(this, DamageAmount, GetActorLocation(), DamageRadius, nullptr, TArray<AActor*>(), this, this->GetInstigatorController(), true, ECC_Visibility);
 	
 	if (RadialForceComp)
 	{

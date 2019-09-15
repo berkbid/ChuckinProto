@@ -26,6 +26,7 @@
 #include "ChuckinChickin.h"
 #include "Classes/Sound/SoundBase.h" 
 #include "Kismet/GameplayStatics.h"
+#include "ChuckinHealthComponent.h"
 
 #ifndef HMD_MODULE_INCLUDED
 #define HMD_MODULE_INCLUDED 0
@@ -47,37 +48,6 @@ FAutoConsoleVariableRef CVARDebugCarDrawing(
 	DebugCarDrawing,
 	TEXT("Draw Debug Lines for Car"),
 	ECVF_Cheat);
-
-//void AChuckinProtoPawn::Fire()
-//{
-//	//UE_LOG(LogTemp, Warning, TEXT("FIRE!"));
-//	
-//	if (ProjectileClass)
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("FIRE!"));
-//		UGameplayStatics::PlaySoundAtLocation(this, ShootingSoundEffect, GetActorLocation());
-//		FRotator EyeRotation;
-//		EyeRotation = GetActorRotation();
-//		EyeRotation.Yaw += ChickenYawOffset;
-//		EyeRotation.Pitch += ChickenPitchOffset;
-//
-//		FVector MuzzleLocation = GetMesh()->GetSocketLocation(MuzzleSocketName);
-//
-//		FActorSpawnParameters SpawnParams;
-//		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-//		SpawnParams.Instigator = this;
-//		SpawnParams.Owner = this;
-//
-//		if (DebugCarDrawing)
-//		{
-//			DrawDebugLine(GetWorld(), MuzzleLocation, MuzzleLocation + EyeRotation.Vector() * 300.f, FColor::Blue, false, 5.f, 0, 5.f);
-//		}
-//
-//		GetWorld()->SpawnActor<AActor>(ProjectileClass, MuzzleLocation, EyeRotation, SpawnParams);
-//
-//		LastFireTime = GetWorld()->TimeSeconds;
-//	}
-//}
 
 void AChuckinProtoPawn::FireAt(FVector HitLocation)
 {
@@ -123,6 +93,17 @@ void AChuckinProtoPawn::FireAt(FVector HitLocation)
 	}
 }
 
+
+void AChuckinProtoPawn::OnDeath()
+{
+	if (bIsDead) { return; }
+	bIsDead = true;
+
+	//GetMovementComponent()->StopMovementImmediately();
+	//GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//DetachFromControllerPendingDestroy();
+	SetLifeSpan(1.f);
+}
 
 #define LOCTEXT_NAMESPACE "VehiclePawn"
 
@@ -274,12 +255,15 @@ AChuckinProtoPawn::AChuckinProtoPawn()
 	bInReverseGear = false;
 
 	// NEW STUFF
+	HealthComp = CreateDefaultSubobject<UChuckinHealthComponent>("HealthComp"); 
+
 	// bullets per minute
 	RateOfFire = 50.f;
 	MuzzleSocketName = "ChickenFire";
 	ChickenYawOffset = 0.f;
 	ChickenPitchOffset = 0.f;
 	LaunchSpeed = 10000.f;
+	bIsDead = false;
 
 }
 
@@ -358,7 +342,7 @@ void AChuckinProtoPawn::EnableIncarView(const bool bState)
 void AChuckinProtoPawn::Tick(float Delta)
 {
 	Super::Tick(Delta);
-
+	//if (bIsDead) { return; }
 	// Setup the flag to say we are in reverse gear
 	bInReverseGear = GetVehicleMovement()->GetCurrentGear() < 0;
 	

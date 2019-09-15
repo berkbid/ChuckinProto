@@ -52,6 +52,10 @@ class AChuckinProtoPawn : public AWheeledVehicle
 	UPROPERTY(Category = Display, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UAudioComponent* EngineSoundComponent;
 
+	/** Health component for player health */
+	UPROPERTY(Category = Health, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UChuckinHealthComponent* HealthComp;
+
 public:
 	AChuckinProtoPawn();
 
@@ -94,6 +98,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	bool bIsDead;
+
 public:
 	// End Actor interface
 
@@ -135,9 +141,9 @@ public:
 
 	float LastFireTime;
 
-	
-	
 	void FireAt(FVector HitLocation);
+
+	void OnDeath();
 
 	/* RPM - Bullets per minute fired by weapon */
 	UPROPERTY(EditDefaultsOnly, Category = "Chicken")

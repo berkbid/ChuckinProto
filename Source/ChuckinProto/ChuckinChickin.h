@@ -63,6 +63,9 @@ protected:
 	float DamageRadius;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Explosion")
+	float DamageAmount;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Explosion")
 	bool bExpldeOnHit;
 
 	bool bIsExploded;

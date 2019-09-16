@@ -88,7 +88,9 @@ void AChuckinProtoGameMode::HandleActorKilled(AActor* VictimActor, AActor* Kille
 			if (VictimPS)
 			{
 				VictimPS->RemoveLife();
+				PrepareForSpawn();
 			}
+			
 		}
 
 		
@@ -107,6 +109,12 @@ void AChuckinProtoGameMode::PrepareForSpawn()
 {
 	UE_LOG(LogTemp, Warning, TEXT("PrepareForStart()"))
 	GetWorldTimerManager().SetTimer(TimerHandle_NextWaveStart, this, &AChuckinProtoGameMode::RestartDeadPlayer, TimeBeforeStart, false, TimeBeforeStart);
+	
+	AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC)
+	{
+		PC->ShowGameState();
+	}
 }
 
 void AChuckinProtoGameMode::StartWave()
@@ -118,11 +126,19 @@ void AChuckinProtoGameMode::StartWave()
 
 void AChuckinProtoGameMode::RestartDeadPlayer()
 {
+	GetWorldTimerManager().ClearTimer(TimerHandle_NextWaveStart);
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (PC && (PC->GetPawn() == nullptr))
 	{
+		AChuckinPlayerController* CPC = Cast<AChuckinPlayerController>(PC);
+		if (CPC)
+		{
+			CPC->ResumePlay();
+		}
+
 		RestartPlayer(PC);
 	}
+	
 	
 }
 

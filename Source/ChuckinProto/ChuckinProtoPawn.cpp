@@ -278,6 +278,8 @@ void AChuckinProtoPawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAxis("MoveRight", this, &AChuckinProtoPawn::MoveRight);
 	PlayerInputComponent->BindAxis(LookUpBinding);
 	PlayerInputComponent->BindAxis(LookRightBinding);
+	PlayerInputComponent->BindAxis("LookUpNew", this, &AChuckinProtoPawn::LookUpNew);
+	PlayerInputComponent->BindAxis("LookRightNew", this, &AChuckinProtoPawn::LookRightNew);
 
 	PlayerInputComponent->BindAction("Handbrake", IE_Pressed, this, &AChuckinProtoPawn::OnHandbrakePressed);
 	PlayerInputComponent->BindAction("Handbrake", IE_Released, this, &AChuckinProtoPawn::OnHandbrakeReleased);
@@ -286,6 +288,8 @@ void AChuckinProtoPawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AChuckinProtoPawn::OnResetVR); 
 
 	PlayerInputComponent->BindAction("FlipCar", IE_Pressed, this, &AChuckinProtoPawn::FlipCar);
+
+
 
 	
 
@@ -480,6 +484,27 @@ void AChuckinProtoPawn::UpdatePhysicsMaterial()
 			bIsLowFriction = true;
 		}
 	}
+}
+
+void AChuckinProtoPawn::LookUpNew(float Val)
+{
+	FRotator LocalRotate(0);
+	LocalRotate.Pitch = Val;
+	if (SpringArm)
+	{
+		SpringArm->AddLocalRotation(LocalRotate);
+	}
+}
+
+void AChuckinProtoPawn::LookRightNew(float Val)
+{
+	FRotator LocalRotate(0);
+	LocalRotate.Yaw = Val;
+	if (AzimuthGimbal)
+	{
+		AzimuthGimbal->AddLocalRotation(LocalRotate);
+	}
+	
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -158,6 +158,16 @@ void AChuckinPlayerController::ResumePlay()
 		UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
 		bShowMouseCursor = false;
 	}
+	else
+	{
+		TArray<UUserWidget*> FoundWidgets;
+
+		UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), FoundWidgets, wGameState);
+		for (UUserWidget* UW : FoundWidgets)
+		{
+			UW->RemoveFromViewport();
+		}
+	}
 }
 
 void AChuckinPlayerController::RestartPlayerNew()
@@ -168,28 +178,35 @@ void AChuckinPlayerController::RestartPlayerNew()
 
 void AChuckinPlayerController::PauseGame()
 {
-	if (!UGameplayStatics::IsGamePaused(GetWorld()))
+	if (UGameplayStatics::SetGamePaused(this, true))
 	{
-		if (UGameplayStatics::SetGamePaused(this, true))
+		// Add Game Info widget to viewport
+		if (wPauseMenu)
 		{
-			// Add Game Info widget to viewport
-			if (wPauseMenu)
-			{
-				MyPauseMenu = CreateWidget<UUserWidget>(this, wPauseMenu);
+			MyPauseMenu = CreateWidget<UUserWidget>(this, wPauseMenu);
 
-				if (MyPauseMenu)
-				{
-					MyPauseMenu->AddToViewport();
-					//UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(this, MyPauseMenu);
-					UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, MyPauseMenu);
-					bShowMouseCursor = true;
-				}
+			if (MyPauseMenu)
+			{
+				MyPauseMenu->AddToViewport();
+				//UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(this, MyPauseMenu);
+				UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, MyPauseMenu);
+				bShowMouseCursor = true;
 			}
 		}
 	}
-	else
+}
+
+void AChuckinPlayerController::ShowGameState()
+{
+	// Add Game Info widget to viewport
+	if (wGameState)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Trying to unpause"));
+		MyGameState = CreateWidget<UUserWidget>(this, wGameState);
+
+		if (MyGameState)
+		{
+			MyGameState->AddToViewport();
+		}
 	}
 }
 

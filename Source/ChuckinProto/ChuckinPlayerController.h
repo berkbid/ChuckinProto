@@ -24,7 +24,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<class UUserWidget> wCrosshair;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<class UUserWidget> wPauseMenu;
+
 	UUserWidget* MyCrosshair;
+
+	UUserWidget* MyPauseMenu;
 
 	virtual void BeginPlay() override;
 
@@ -36,7 +41,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	void StopFireTarget();
 
+	UFUNCTION(BlueprintCallable, Category = "Game")
+	void ResumePlay();
+
 	void RestartPlayerNew();
+
+	void PauseGame();
+
 	FTimerHandle TimerHandle_TimeBetweenShots;
 
 	// Derived from RateOfFire

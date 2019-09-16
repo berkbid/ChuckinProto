@@ -30,6 +30,7 @@ void AChuckinPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Add Game Info widget to viewport
 	if (wCrosshair)
 	{
 		MyCrosshair = CreateWidget<UUserWidget>(this, wCrosshair);

@@ -16,6 +16,19 @@ class CHUCKINPROTO_API AChuckinPlayerState : public APlayerState
 	
 
 public:
+
+	AChuckinPlayerState();
+
 	UFUNCTION(BlueprintCallable, Category = "PlayerState")
 	void AddScore(float ScoreDelta);
+
+	void RemoveLife();
+
+	UPROPERTY(BlueprintReadOnly, Category = "PlayerState")
+	float Lives;
+
+protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerState")
+	float DefaultNumOfLives;
 };

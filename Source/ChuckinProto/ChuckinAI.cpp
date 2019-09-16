@@ -5,6 +5,7 @@
 #include "Classes/Engine/StaticMesh.h"
 #include "Components/SceneComponent.h"
 #include "ChuckinHealthComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 // Sets default values
 AChuckinAI::AChuckinAI()
@@ -14,13 +15,11 @@ AChuckinAI::AChuckinAI()
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetSimulatePhysics(true);
 	MeshComp->SetCollisionObjectType(ECC_PhysicsBody);
+	MeshComp->SetCanEverAffectNavigation(false);
 	//MeshComp->OnComponentBeginOverlap.AddDynamic(this, &AChuckinChickin::OnOverlapBegin);
 	RootComponent = MeshComp;
-	//MeshComp->SetupAttachment(RootComponent);
 
 	HealthComp = CreateDefaultSubobject<UChuckinHealthComponent>("HealthComp");
-
-
 }
 
 // Called when the game starts or when spawned
@@ -28,13 +27,5 @@ void AChuckinAI::BeginPlay()
 {
 	Super::BeginPlay();
 	
-}
-
-
-// Called to bind functionality to input
-void AChuckinAI::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 

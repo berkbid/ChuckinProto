@@ -21,6 +21,7 @@ FAutoConsoleVariableRef CVARDebugAIDrawing(
 
 AChuckinAIController::AChuckinAIController()
 {
+	// Default values for minimum and maximum seconds range for AI to fire
 	AITimeBetweenShotsMin = 3.f;
 	AITimeBetweenShotsMax = 7.f;
 }
@@ -30,11 +31,17 @@ void AChuckinAIController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Grab reference to the Pawn this AI Controller is possessing
 	ControlledPawn = Cast<AChuckinAI>(GetPawn());
-	PlayerPawn = Cast<AChuckinProtoPawn>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	float AITimeBetweenShots = FMath::RandRange(AITimeBetweenShotsMin, AITimeBetweenShotsMax);
-	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AChuckinAIController::FireAtPlayer, AITimeBetweenShots, true, 3.f);
 
+	// Grab reference to the Pawn of the human player, to use for location etc.
+	PlayerPawn = Cast<AChuckinProtoPawn>(GetWorld()->GetFirstPlayerController()->GetPawn());
+
+	// Create random amount of time to fire chicken
+	AITimeBetweenShots = FMath::RandRange(AITimeBetweenShotsMin, AITimeBetweenShotsMax);
+
+	// Call FireAtPlayer() function looping
+	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AChuckinAIController::FireAtPlayer, AITimeBetweenShots, true, AITimeBetweenShots);
 }
 
 void AChuckinAIController::FireAtPlayer()
@@ -90,14 +97,18 @@ void AChuckinAIController::FireAtPlayer()
 			ControlledPawn->SetActorRotation(LookAtPlayer);
 		}
 		
-
 		//UE_LOG(LogTemp, Warning, TEXT("AI Location: %s"), *ControlledPawn->GetActorLocation().ToString());
 		AChuckinChickin* Chicken = Cast<AChuckinChickin>(GetWorld()->SpawnActor<AActor>(ProjectileClass, StartLocation, AimAsRotator, SpawnParams));
 		//ControlledPawn->MoveIgnoreActorAdd(Chicken);
+
+		// This seems to have no effect to the chicken launchspeed.
+		// TODO: Figure out how to change chicken speed on launch
 		if (Chicken)
 		{
 			Chicken->LaunchProjectile(LaunchSpeed);
 		}
 		
 	}
+
+	AITimeBetweenShots = FMath::RandRange(AITimeBetweenShotsMin, AITimeBetweenShotsMax);
 }

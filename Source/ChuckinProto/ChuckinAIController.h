@@ -28,6 +28,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Chicken")
 	float AITimeBetweenShotsMax;
 
+	float AITimeBetweenShots;
+
 
 
 public:

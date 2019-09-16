@@ -61,8 +61,18 @@ void UChuckinHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Da
 				// Destroy owner
 				MyOwner->Destroy();
 
-				// Tell Game Mode to Prepare to respawn
-				GM->PrepareForSpawn();
+				//APawn* TempPawn = Cast<APawn>(DamagedActor);
+				//if (TempPawn)
+				//{
+				//	if (TempPawn->IsPlayerControlled())
+				//	{
+				//		// Tell Game Mode to Prepare to respawn
+				//		
+				//	}
+				//}
+
+				//GM->PrepareForSpawn();
+
 			}
 		}
 

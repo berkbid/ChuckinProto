@@ -27,9 +27,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<class UUserWidget> wPauseMenu;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<class UUserWidget> wGameState;
+
 	UUserWidget* MyCrosshair;
 
 	UUserWidget* MyPauseMenu;
+
+	UUserWidget* MyGameState;
 
 	virtual void BeginPlay() override;
 
@@ -47,6 +52,8 @@ public:
 	void RestartPlayerNew();
 
 	void PauseGame();
+
+	void ShowGameState();
 
 	FTimerHandle TimerHandle_TimeBetweenShots;
 

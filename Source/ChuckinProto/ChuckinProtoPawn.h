@@ -112,6 +112,9 @@ public:
 	/** Update the physics material used by the vehicle mesh */
 	void UpdatePhysicsMaterial();
 
+	void LookUpNew(float Val);
+
+	void LookRightNew(float Val);
 	/** Handle pressing right */
 	void MoveRight(float Val);
 	/** Handle handbrake pressed */

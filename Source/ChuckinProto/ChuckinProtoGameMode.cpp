@@ -73,13 +73,25 @@ void AChuckinProtoGameMode::HandleActorKilled(AActor* VictimActor, AActor* Kille
 		AChuckinProtoPawn* KillerPawn = Cast<AChuckinProtoPawn>(KillerController->GetPawn());
 		if (KillerPawn)
 		{
-			AChuckinPlayerState* PS = Cast<AChuckinPlayerState>(KillerPawn->GetPlayerState());
+			AChuckinPlayerState* KillerPS = Cast<AChuckinPlayerState>(KillerPawn->GetPlayerState());
 
-			if (PS)
+			if (KillerPS)
 			{
-				PS->AddScore(10.f);
+				KillerPS->AddScore(10.f);
+				//PS->RemoveLife();
 			}
 		}
+		APawn* tempP = Cast<APawn>(VictimActor);
+		if (tempP)
+		{
+			AChuckinPlayerState* VictimPS = Cast<AChuckinPlayerState>(tempP->GetPlayerState());
+			if (VictimPS)
+			{
+				VictimPS->RemoveLife();
+			}
+		}
+
+		
 	}
 	
 }

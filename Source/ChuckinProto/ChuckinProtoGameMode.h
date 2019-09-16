@@ -7,8 +7,9 @@
 #include "ChuckinProtoGameMode.generated.h"
 
 enum class EWaveState : uint8;
+class AController;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActorKilled, AActor*, VictimActor, AActor*, KillerActor, class AController*, KillerController);  // Killed actor, Killer actor,
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActorKilled, AActor*, VictimActor, AActor*, KillerActor, AController*, KillerController);  // Killed actor, Killer actor,
 
 UCLASS(MinimalAPI)
 class AChuckinProtoGameMode : public AGameModeBase
@@ -31,7 +32,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	void HandleActorKilled(AActor* VictimActor, AActor* KillerActor, class AController* KillerController);
+	void HandleActorKilled(AActor* VictimActor, AActor* KillerActor, AController* KillerController);
 
 
 	void RestartDeadPlayer();

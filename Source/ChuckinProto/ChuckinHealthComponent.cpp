@@ -52,8 +52,6 @@ void UChuckinHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Da
 		bIsDead = true;
 		if (MyOwner)
 		{
-			
-
 			AChuckinProtoGameMode* GM = Cast<AChuckinProtoGameMode>(GetWorld()->GetAuthGameMode());
 			if (GM)
 			{
@@ -66,14 +64,6 @@ void UChuckinHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Da
 				// Tell Game Mode to Prepare to respawn
 				GM->PrepareForSpawn();
 			}
-			//if (AChuckinProtoPawn * ProtoPawn = Cast<AChuckinProtoPawn>(MyOwner))
-			//{
-			//	ProtoPawn->Destroy();
-			//}
-			//else if (AChuckinAI* AIPawn = Cast<AChuckinAI>(MyOwner))
-			//{
-			//	AIPawn->Destroy();
-			//}
 		}
 
 	} 

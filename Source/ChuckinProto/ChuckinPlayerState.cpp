@@ -3,8 +3,21 @@
 
 #include "ChuckinPlayerState.h"
 
+
+AChuckinPlayerState::AChuckinPlayerState()
+{
+	DefaultNumOfLives = 3;
+	Lives = DefaultNumOfLives;
+
+}
 // Allows blueprint to manipulate "Score" since it is marked BlueprintReadOnly in PlayerState.h
 void AChuckinPlayerState::AddScore(float ScoreDelta)
 {
 	Score += ScoreDelta;
+}
+
+void AChuckinPlayerState::RemoveLife()
+{
+	Lives = FMath::Clamp(Lives - 1.f, 0.f, DefaultNumOfLives);
+	//Lives -= 1;
 }

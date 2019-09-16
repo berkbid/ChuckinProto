@@ -488,6 +488,7 @@ void AChuckinProtoPawn::UpdatePhysicsMaterial()
 
 void AChuckinProtoPawn::LookUpNew(float Val)
 {
+	//hi
 	FRotator LocalRotate(0);
 	LocalRotate.Pitch = Val;
 	if (SpringArm)

@@ -10,6 +10,7 @@
 #include "GameFramework/PlayerController.h"
 #include "TimerManager.h"
 #include "ChuckinProtoGameMode.h"
+#include "BluePrint/WidgetBlueprintLibrary.h"
 
 AChuckinPlayerController::AChuckinPlayerController()
 {
@@ -143,19 +144,54 @@ void AChuckinPlayerController::StopFireTarget()
 	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
 }
 
-void AChuckinPlayerController::RestartPlayerNew()
+void AChuckinPlayerController::ResumePlay()
 {
-	//AChuckinProtoGameMode* GM = Cast<AChuckinProtoGameMode>(GetWorld()->GetAuthGameMode());
-	//if (GM)
-	//{
-	//	GM->RestartPlayer(this);
-	//}
-	
-	RestartLevel();
-	//RestartPlayer();
-	
+	if (UGameplayStatics::SetGamePaused(this, false))
+	{
+		TArray<UUserWidget*> FoundWidgets;
+
+		UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), FoundWidgets, wPauseMenu);
+		for (UUserWidget* UW : FoundWidgets)
+		{
+			UW->RemoveFromViewport();
+		}
+		UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
+		bShowMouseCursor = false;
+	}
 }
 
+void AChuckinPlayerController::RestartPlayerNew()
+{
+	RestartLevel();
+}
+
+
+void AChuckinPlayerController::PauseGame()
+{
+	if (!UGameplayStatics::IsGamePaused(GetWorld()))
+	{
+		if (UGameplayStatics::SetGamePaused(this, true))
+		{
+			// Add Game Info widget to viewport
+			if (wPauseMenu)
+			{
+				MyPauseMenu = CreateWidget<UUserWidget>(this, wPauseMenu);
+
+				if (MyPauseMenu)
+				{
+					MyPauseMenu->AddToViewport();
+					//UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(this, MyPauseMenu);
+					UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, MyPauseMenu);
+					bShowMouseCursor = true;
+				}
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Trying to unpause"));
+	}
+}
 
 void AChuckinPlayerController::SetupInputComponent()
 {
@@ -168,5 +204,6 @@ void AChuckinPlayerController::SetupInputComponent()
 	InputComponent->BindAction("FireTarget", IE_Released, this, &AChuckinPlayerController::StopFireTarget);
 
 	InputComponent->BindAction("RestartPlayer", IE_Pressed, this, &AChuckinPlayerController::RestartPlayerNew);
+	InputComponent->BindAction("Pause", IE_Pressed, this, &AChuckinPlayerController::PauseGame);
 
 }

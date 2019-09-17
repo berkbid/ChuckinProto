@@ -30,11 +30,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<class UUserWidget> wGameState;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<class UUserWidget> wGameOverMenu;
+
 	UUserWidget* MyCrosshair;
 
 	UUserWidget* MyPauseMenu;
 
 	UUserWidget* MyGameState;
+
+	UUserWidget* MyGameOverMenu;
 
 	virtual void BeginPlay() override;
 
@@ -54,6 +59,8 @@ public:
 	void PauseGame();
 
 	void ShowGameState();
+
+	void ShowGameOverMenu();
 
 	//void ShowGameOverState();
 

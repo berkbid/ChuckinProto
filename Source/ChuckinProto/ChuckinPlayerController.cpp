@@ -218,6 +218,19 @@ void AChuckinPlayerController::ShowGameState()
 	}
 }
 
+void  AChuckinPlayerController::ShowGameOverMenu() {
+	if (wGameOverMenu) 
+	{
+		MyGameOverMenu = CreateWidget<UUserWidget>(this, wGameOverMenu);
+		if (MyGameOverMenu)
+		{
+			MyGameOverMenu->AddToViewport();
+			UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, MyGameOverMenu);
+			bShowMouseCursor = true;
+		}
+	}
+}
+
 //void AChuckinPlayerController::ShowGameOverState()
 //{
 //	// Add Game Info widget to viewport

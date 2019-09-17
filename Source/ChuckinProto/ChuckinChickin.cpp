@@ -104,8 +104,8 @@ void AChuckinChickin::Explode()
 {
 	bIsExploded = true;
 	// Can add actors to ignore for applying radial damage
-
-	UGameplayStatics::ApplyRadialDamage(this, DamageAmount, GetActorLocation(), DamageRadius, nullptr, TArray<AActor*>{GetOwner()}, this, this->GetInstigatorController(), true, ECC_Visibility);
+	// Setting GetOwner() here makes the damage IGNORE the owning actor
+	UGameplayStatics::ApplyRadialDamage(this, DamageAmount, GetActorLocation(), DamageRadius, nullptr, TArray<AActor*>(), GetOwner(), this->GetInstigatorController(), true, ECC_Visibility);
 	
 	if (RadialForceComp)
 	{

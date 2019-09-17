@@ -29,9 +29,24 @@ AChuckinAIController::AChuckinAIController()
 	// Default values for minimum and maximum seconds range for AI to fire
 	AITimeBetweenShotsMin = 3.f;
 	AITimeBetweenShotsMax = 7.f;
-	bSetControlRotationFromPawnOrientation = true;
 }
 
+
+void AChuckinAIController::Tick(float Delta)
+{
+	Super::Tick(Delta);
+
+	if (ControlledPawn && PlayerPawn)
+	{
+		//FRotator LookRotation(0);
+		//LookRotation.Yaw = UKismetMathLibrary::FindLookAtRotation(ControlledPawn->GetActorLocation(), PlayerPawn->GetActorLocation()).Yaw + 90.f;
+		FRotator LookRotation = UKismetMathLibrary::FindLookAtRotation(ControlledPawn->GetActorLocation(), PlayerPawn->GetActorLocation());
+		LookRotation.Yaw += 90.f;
+		ControlledPawn->FaceRotation(LookRotation, 0.f);
+	}
+	
+
+}
 
 // Event overriden from parent, when AI completes movement to a location
 void AChuckinAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
@@ -70,12 +85,10 @@ void AChuckinAIController::BeginPlay()
 void AChuckinAIController::FireAtPlayer()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("AI Pawn: %s, Player Pawn: %s"), *ControlledPawn->GetName(), *PlayerPawn->GetName());
-
 	if (!ProjectileClass) { return; }
 
-	// Look for player every time AI fires? Seems excessive.
+	// Look for player every time AI fires? Seems excessive
 	PlayerPawn = Cast<AChuckinProtoPawn>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	
 	if (!PlayerPawn) { return; }
 
 	//UGameplayStatics::PlaySoundAtLocation(this, ShootingSoundEffect, GetActorLocation());
@@ -109,16 +122,6 @@ void AChuckinAIController::FireAtPlayer()
 		{
 			DrawDebugLine(GetWorld(), StartLocation, HitLocation, FColor::Blue, false, 5.f, 0, 2.f);
 		}
-		// Look At Player
-		FVector NewDirection = HitLocation - StartLocation;
-		FRotator LookAtPlayer;
-		LookAtPlayer.Yaw = AimAsRotator.Yaw + 90.f;
-		LookAtPlayer.Pitch = ControlledPawn->GetActorRotation().Pitch;
-		LookAtPlayer.Roll = ControlledPawn->GetActorRotation().Roll;
-		if (ControlledPawn)
-		{
-			ControlledPawn->SetActorRotation(LookAtPlayer);
-		}
 		
 		//UE_LOG(LogTemp, Warning, TEXT("AI Location: %s"), *ControlledPawn->GetActorLocation().ToString());
 		AChuckinChickin* Chicken = Cast<AChuckinChickin>(GetWorld()->SpawnActor<AActor>(ProjectileClass, StartLocation, AimAsRotator, SpawnParams));
@@ -138,27 +141,27 @@ void AChuckinAIController::FireAtPlayer()
 
 void AChuckinAIController::MoveTowardsPlayer()
 {
+	// If we don't have a reference to the player pawn because it got destroyed, try and find a new reference.
 	if (!PlayerPawn)
 	{
 		PlayerPawn = Cast<AChuckinProtoPawn>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	}
 
+	// If we have valid references to the playerpawn and the AI controlled pawn, then lets MoveToActor
 	if (PlayerPawn && ControlledPawn)
 	{
+		// Must set focus to set focal point for AI to face towards focal point
+		//SetFocus(PlayerPawn);
 		// Flip AI car upright before moving towards player
 		FRotator NewRotation(0);
 		NewRotation.Yaw = ControlledPawn->GetActorRotation().Yaw;
 		ControlledPawn->SetActorRotation(NewRotation, ETeleportType::TeleportPhysics);
-
-
-		// Face AI car towards player before moving towards player
-		FRotator LookRotation = UKismetMathLibrary::FindLookAtRotation(ControlledPawn->GetActorLocation(), PlayerPawn->GetActorLocation());
-		LookRotation.Yaw += 90.f;
-
-		ControlledPawn->SetActorRotation(LookRotation);
 		
-
-		MoveToActor(PlayerPawn, 650.f);
+		// Move towards actor
+		//MoveToActor(PlayerPawn, 650.f, true, true, true);
+		
+		// Should Strafing be false:
+		MoveToActor(PlayerPawn, 650.f, true, true, false);
 	}
 }
 

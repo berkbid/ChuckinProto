@@ -180,5 +180,16 @@ FVector AChuckinAIController::GetNextPathPoint()
 
 void AChuckinAIController::RefreshPath()
 {
+	// Flip cars upright before preparing to move to player
+	if (ControlledPawn)
+	{
+		// Make sure car is upright
+		FRotator NewRotation(0);
+		NewRotation.Yaw = ControlledPawn->GetActorRotation().Yaw;
+
+		ControlledPawn->SetActorRotation(NewRotation, ETeleportType::TeleportPhysics);
+	}
+
+	// Move towards new player location
 	NextPathPoint = GetNextPathPoint();
 }

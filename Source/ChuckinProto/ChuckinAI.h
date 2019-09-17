@@ -16,11 +16,12 @@ public:
 	AChuckinAI();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, Category = Components)
 	class UStaticMeshComponent* MeshComp;
+
+	UPROPERTY(VisibleAnywhere, Category = Components)
+	class UFloatingPawnMovement* MovementComp;
 
 	/** Azimuth Gimbal to attach Spring arm for camera to, for x direction mouse movement */
 	//UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

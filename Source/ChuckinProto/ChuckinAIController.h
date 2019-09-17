@@ -19,6 +19,8 @@ protected:
 
 	FTimerHandle TimerHandle_TimeBetweenShots;
 
+	FTimerHandle TimerHandle_RefreshPath;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Chicken")
 	TSubclassOf<class AChuckinChickin> ProjectileClass;
 
@@ -30,10 +32,18 @@ protected:
 
 	float AITimeBetweenShots;
 
+	FVector GetNextPathPoint();
+
+	void RefreshPath();
+
+	FVector NextPathPoint;
 
 
 public:
 	AChuckinAIController();
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 
 private:
 	virtual void BeginPlay() override;

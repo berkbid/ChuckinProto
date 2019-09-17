@@ -11,6 +11,10 @@
 #include "ChuckinChickin.h"
 #include "Classes/Kismet/GameplayStatics.h"
 #include "Public/DrawDebugHelpers.h"
+#include "Public/NavigationSystem.h"
+#include "Public/NavigationPath.h"
+#include "GameFramework/Actor.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
 
 static int32 DebugAIDrawing = 0;
 FAutoConsoleVariableRef CVARDebugAIDrawing(
@@ -27,6 +31,13 @@ AChuckinAIController::AChuckinAIController()
 }
 
 
+void AChuckinAIController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+
+}
+
 void AChuckinAIController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -40,8 +51,13 @@ void AChuckinAIController::BeginPlay()
 	// Create random amount of time to fire chicken
 	AITimeBetweenShots = FMath::RandRange(AITimeBetweenShotsMin, AITimeBetweenShotsMax);
 
+	NextPathPoint = GetNextPathPoint();
+
 	// Call FireAtPlayer() function looping
 	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AChuckinAIController::FireAtPlayer, AITimeBetweenShots, true, AITimeBetweenShots);
+
+	
+
 }
 
 void AChuckinAIController::FireAtPlayer()
@@ -111,4 +127,58 @@ void AChuckinAIController::FireAtPlayer()
 	}
 
 	AITimeBetweenShots = FMath::RandRange(AITimeBetweenShotsMin, AITimeBetweenShotsMax);
+}
+
+FVector AChuckinAIController::GetNextPathPoint()
+{
+	//if (PlayerPawn)
+	//{
+	//	AActor* PlayerActor = Cast<AActor>(PlayerPawn);
+	//	if (PlayerActor && ControlledPawn)
+	//	{
+	//		//UNavigationSystemV1::SimpleMoveToActor(this, PlayerActor);
+	//		UAIBlueprintHelperLibrary::SimpleMoveToActor(this, PlayerActor);
+	//		UNavigationPath* NavPath = UNavigationSystemV1::FindPathToActorSynchronously(this, ControlledPawn->GetActorLocation(), PlayerActor);
+
+	//		GetWorldTimerManager().SetTimer(TimerHandle_RefreshPath, this, &AChuckinAIController::RefreshPath, 5.f, false);
+
+	//		if (NavPath)
+	//		{
+	//			if (NavPath->PathPoints.Num() > 1)
+	//			{
+	//
+	//				
+	//				return NavPath->PathPoints[1];
+	//			}
+	//		}
+
+	//	}
+	//}
+
+	// If player has respawned, need to make new reference to player pawn
+	if (!PlayerPawn)
+	{
+		PlayerPawn = Cast<AChuckinProtoPawn>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	}
+
+	if (PlayerPawn)
+	{
+		AActor* PlayerActor = Cast<AActor>(PlayerPawn);
+		if (PlayerActor)
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("Moving to actor: %s, location: %s"), *PlayerActor->GetName(), *PlayerActor->GetActorLocation().ToString());
+			UAIBlueprintHelperLibrary::SimpleMoveToActor(this, PlayerActor);
+			GetWorldTimerManager().SetTimer(TimerHandle_RefreshPath, this, &AChuckinAIController::RefreshPath, 5.f, false);
+		}
+		return PlayerPawn->GetActorLocation();
+	}
+	else
+	{
+		return FVector(0);
+	}
+}
+
+void AChuckinAIController::RefreshPath()
+{
+	NextPathPoint = GetNextPathPoint();
 }

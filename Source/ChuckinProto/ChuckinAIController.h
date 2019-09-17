@@ -19,6 +19,8 @@ protected:
 
 	FTimerHandle TimerHandle_TimeBetweenShots;
 
+	FTimerHandle TimerHandle_TimeBetweenMoveTo;
+
 	FTimerHandle TimerHandle_RefreshPath;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Chicken")
@@ -32,9 +34,7 @@ protected:
 
 	float AITimeBetweenShots;
 
-	FVector GetNextPathPoint();
-
-	void RefreshPath();
+	void MoveTowardsPlayer();
 
 	FVector NextPathPoint;
 
@@ -42,8 +42,8 @@ protected:
 public:
 	AChuckinAIController();
 
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	// Override method that handles when movement is completed
+	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
 private:
 	virtual void BeginPlay() override;

@@ -15,6 +15,7 @@
 #include "Public/NavigationPath.h"
 #include "GameFramework/Actor.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 
 static int32 DebugAIDrawing = 0;
 FAutoConsoleVariableRef CVARDebugAIDrawing(
@@ -28,14 +29,17 @@ AChuckinAIController::AChuckinAIController()
 	// Default values for minimum and maximum seconds range for AI to fire
 	AITimeBetweenShotsMin = 3.f;
 	AITimeBetweenShotsMax = 7.f;
+	bSetControlRotationFromPawnOrientation = true;
 }
 
 
-void AChuckinAIController::Tick(float DeltaTime)
+// Event overriden from parent, when AI completes movement to a location
+void AChuckinAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
-	Super::Tick(DeltaTime);
+	Super::OnMoveCompleted(RequestID, Result);
 
-
+	// Wait 2 seconds, then re-target player and move towards player again
+	//GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenMoveTo, this, &AChuckinAIController::MoveTowardsPlayer,2.f, false, 2.f);
 }
 
 void AChuckinAIController::BeginPlay()
@@ -51,12 +55,15 @@ void AChuckinAIController::BeginPlay()
 	// Create random amount of time to fire chicken
 	AITimeBetweenShots = FMath::RandRange(AITimeBetweenShotsMin, AITimeBetweenShotsMax);
 
-	NextPathPoint = GetNextPathPoint();
+	//NextPathPoint = GetNextPathPoint();
+	MoveTowardsPlayer();
+	
 
 	// Call FireAtPlayer() function looping
 	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AChuckinAIController::FireAtPlayer, AITimeBetweenShots, true, AITimeBetweenShots);
 
-	
+	// Every 5 seconds Move towards player
+	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenMoveTo, this, &AChuckinAIController::MoveTowardsPlayer, 5.f, true, 5.f);
 
 }
 
@@ -129,67 +136,29 @@ void AChuckinAIController::FireAtPlayer()
 	AITimeBetweenShots = FMath::RandRange(AITimeBetweenShotsMin, AITimeBetweenShotsMax);
 }
 
-FVector AChuckinAIController::GetNextPathPoint()
+void AChuckinAIController::MoveTowardsPlayer()
 {
-	//if (PlayerPawn)
-	//{
-	//	AActor* PlayerActor = Cast<AActor>(PlayerPawn);
-	//	if (PlayerActor && ControlledPawn)
-	//	{
-	//		//UNavigationSystemV1::SimpleMoveToActor(this, PlayerActor);
-	//		UAIBlueprintHelperLibrary::SimpleMoveToActor(this, PlayerActor);
-	//		UNavigationPath* NavPath = UNavigationSystemV1::FindPathToActorSynchronously(this, ControlledPawn->GetActorLocation(), PlayerActor);
-
-	//		GetWorldTimerManager().SetTimer(TimerHandle_RefreshPath, this, &AChuckinAIController::RefreshPath, 5.f, false);
-
-	//		if (NavPath)
-	//		{
-	//			if (NavPath->PathPoints.Num() > 1)
-	//			{
-	//
-	//				
-	//				return NavPath->PathPoints[1];
-	//			}
-	//		}
-
-	//	}
-	//}
-
-	// If player has respawned, need to make new reference to player pawn
 	if (!PlayerPawn)
 	{
 		PlayerPawn = Cast<AChuckinProtoPawn>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	}
 
-	if (PlayerPawn)
+	if (PlayerPawn && ControlledPawn)
 	{
-		AActor* PlayerActor = Cast<AActor>(PlayerPawn);
-		if (PlayerActor)
-		{
-			//UE_LOG(LogTemp, Warning, TEXT("Moving to actor: %s, location: %s"), *PlayerActor->GetName(), *PlayerActor->GetActorLocation().ToString());
-			UAIBlueprintHelperLibrary::SimpleMoveToActor(this, PlayerActor);
-			GetWorldTimerManager().SetTimer(TimerHandle_RefreshPath, this, &AChuckinAIController::RefreshPath, 5.f, false);
-		}
-		return PlayerPawn->GetActorLocation();
-	}
-	else
-	{
-		return FVector(0);
-	}
-}
-
-void AChuckinAIController::RefreshPath()
-{
-	// Flip cars upright before preparing to move to player
-	if (ControlledPawn)
-	{
-		// Make sure car is upright
+		// Flip AI car upright before moving towards player
 		FRotator NewRotation(0);
 		NewRotation.Yaw = ControlledPawn->GetActorRotation().Yaw;
-
 		ControlledPawn->SetActorRotation(NewRotation, ETeleportType::TeleportPhysics);
-	}
 
-	// Move towards new player location
-	NextPathPoint = GetNextPathPoint();
+
+		// Face AI car towards player before moving towards player
+		FRotator LookRotation = UKismetMathLibrary::FindLookAtRotation(ControlledPawn->GetActorLocation(), PlayerPawn->GetActorLocation());
+		LookRotation.Yaw += 90.f;
+
+		ControlledPawn->SetActorRotation(LookRotation);
+		
+
+		MoveToActor(PlayerPawn, 650.f);
+	}
 }
+

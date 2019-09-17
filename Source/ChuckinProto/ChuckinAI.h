@@ -15,6 +15,7 @@ public:
 	// Sets default values for this pawn's properties
 	AChuckinAI();
 
+
 protected:
 
 	UPROPERTY(VisibleAnywhere, Category = Components)

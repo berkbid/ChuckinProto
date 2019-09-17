@@ -11,10 +11,19 @@
 #include "ChuckinPlayerState.h"
 #include "ChuckinPlayerController.h"
 #include "GameFramework/Controller.h"
+#include "ChuckinAI.h"
+#include "ChuckinHealthComponent.h"
 
 AChuckinProtoGameMode::AChuckinProtoGameMode()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	// Set tick interval to 1 second
+	PrimaryActorTick.TickInterval = 1.f;
+
 	TimeBeforeStart = 3.f;
+	NumberOfAIToSpawn = 3;
+	WaveNumber = 0;
+	TimeBetweenWaves = 2.f;
 
 	// Set Default Pawn Class From Blueprint
 	static ConstructorHelpers::FClassFinder<AChuckinProtoPawn> PlayerPawnClassFinder(TEXT("/Game/Blueprints/BP_CarPawn"));
@@ -56,10 +65,29 @@ AChuckinProtoGameMode::AChuckinProtoGameMode()
 	
 }
 
+void AChuckinProtoGameMode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// Instead of checking every second, could bind event to bot being destroyed and hook to it
+	CheckAIAlive();
+
+	// Could also bind to when players die instead of check every second
+	//CheckAnyPlayerAlive();
+}
+
+void AChuckinProtoGameMode::StartPlay()
+{
+	Super::StartPlay();
+
+	PrepareForNextWave();
+}
+
 void AChuckinProtoGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// This is custom event we call from healthcomponent when an actor reaches 0 health
 	OnActorKilled.AddDynamic(this, &AChuckinProtoGameMode::HandleActorKilled);
 
 }
@@ -89,11 +117,20 @@ void AChuckinProtoGameMode::HandleActorKilled(AActor* VictimActor, AActor* Kille
 			if (VictimPS)
 			{
 				VictimPS->RemoveLife();
-				PrepareForSpawn();
+				if (VictimPS->Lives <= 0)
+				{
+					GameOver();
+				}
+				else
+				{
+					PrepareForSpawn();
+				}
+				
 			}
 			
 		}
 	}
+	// Destroy the victim actor here after everything has been taken care of
 	if (VictimActor)
 	{
 		VictimActor->Destroy();
@@ -101,17 +138,10 @@ void AChuckinProtoGameMode::HandleActorKilled(AActor* VictimActor, AActor* Kille
 
 }
 
-void AChuckinProtoGameMode::StartPlay()
-{
-	Super::StartPlay();
-
-}
-
 void AChuckinProtoGameMode::PrepareForSpawn()
 {
-	UE_LOG(LogTemp, Warning, TEXT("PrepareForStart()"))
+	SetWaveState(EWaveState::Respawning);
 	GetWorldTimerManager().SetTimer(TimerHandle_NextWaveStart, this, &AChuckinProtoGameMode::RestartDeadPlayer, TimeBeforeStart, false, TimeBeforeStart);
-	
 	AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PC)
 	{
@@ -121,10 +151,93 @@ void AChuckinProtoGameMode::PrepareForSpawn()
 
 void AChuckinProtoGameMode::StartWave()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Starting Wave"))
+	UE_LOG(LogTemp, Warning, TEXT("Starting Wave"));
+	WaveNumber++;
+	NumberOfAIToSpawn = 10 * WaveNumber;
+	UE_LOG(LogTemp, Warning, TEXT("Spawning %d AI TRUCKS"), NumberOfAIToSpawn);
+	GetWorldTimerManager().SetTimer(TimerHandle_AISpawn, this, &AChuckinProtoGameMode::SpawnAITimerElapsed, 1.f, true, 0.f);
 }
 
 
+
+void AChuckinProtoGameMode::EndWave()
+{
+	// Stop spawming AI
+	GetWorldTimerManager().ClearTimer(TimerHandle_AISpawn);
+}
+
+void AChuckinProtoGameMode::GameOver()
+{
+	EndWave();
+	SetWaveState(EWaveState::GameOver);
+	AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC)
+	{
+		PC->ShowGameState();
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("GAME OVER! Players Died"));
+}
+
+void AChuckinProtoGameMode::PrepareForNextWave()
+{
+	UE_LOG(LogTemp, Warning, TEXT("PrepareForNextWave()"))
+	GetWorldTimerManager().SetTimer(TimerHandle_NextWaveStart, this, &AChuckinProtoGameMode::StartWave, TimeBetweenWaves, false);
+
+	SetWaveState(EWaveState::WaitingToStart);
+
+}
+
+void AChuckinProtoGameMode::SpawnAITimerElapsed()
+{
+	// Blueprint implements this function
+	SpawnAITruck();
+
+	NumberOfAIToSpawn--;
+	if (NumberOfAIToSpawn <= 0)
+	{
+		EndWave();
+	}
+}
+
+void AChuckinProtoGameMode::CheckAIAlive()
+{
+	bool bIsPreparingForWave = GetWorldTimerManager().IsTimerActive(TimerHandle_NextWaveStart);
+
+	// Never want to prepare for next wave if already preparing or if still have bots to spawn
+	if (NumberOfAIToSpawn > 0 || bIsPreparingForWave)
+	{
+		return;
+	}
+
+	bool bIsAnyBotAlive = false;
+
+	for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)
+	{
+		APawn* TestPawn = It->Get();
+		AChuckinAI* AITruck = Cast<AChuckinAI>(TestPawn);
+
+		if (AITruck == nullptr)
+		{
+			continue;
+		}
+
+		UChuckinHealthComponent* HealthComp = Cast<UChuckinHealthComponent>(AITruck->GetComponentByClass(UChuckinHealthComponent::StaticClass()));
+
+		if (HealthComp && HealthComp->GetHealth() > 0.f)
+		{
+			bIsAnyBotAlive = true;
+			break;
+		}
+	}
+
+	// This will fail if we found an alive bot in the forloop above where this boolean is set to true
+	if (!bIsAnyBotAlive)
+	{
+		SetWaveState(EWaveState::WaveComplete);
+		PrepareForNextWave();
+	}
+}
 
 void AChuckinProtoGameMode::RestartDeadPlayer()
 {
@@ -147,7 +260,7 @@ void AChuckinProtoGameMode::RestartDeadPlayer()
 void AChuckinProtoGameMode::SetWaveState(EWaveState NewState)
 {
 	AChuckinGameState* GS = GetGameState<AChuckinGameState>();
-	if (GS)
+	if (ensureAlways(GS))
 	{
 		GS->SetWaveState(NewState);
 	}

@@ -38,14 +38,12 @@ void AChuckinAIController::Tick(float Delta)
 
 	if (ControlledPawn && PlayerPawn)
 	{
-		//FRotator LookRotation(0);
-		//LookRotation.Yaw = UKismetMathLibrary::FindLookAtRotation(ControlledPawn->GetActorLocation(), PlayerPawn->GetActorLocation()).Yaw + 90.f;
-		FRotator LookRotation = UKismetMathLibrary::FindLookAtRotation(ControlledPawn->GetActorLocation(), PlayerPawn->GetActorLocation());
+		FVector StartLocation = ControlledPawn->GetActorLocation();
+		FVector EndLocation = PlayerPawn->GetActorLocation();
+		FRotator LookRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, EndLocation);
 		LookRotation.Yaw += 90.f;
 		ControlledPawn->FaceRotation(LookRotation, 0.f);
 	}
-	
-
 }
 
 // Event overriden from parent, when AI completes movement to a location
@@ -63,7 +61,7 @@ void AChuckinAIController::BeginPlay()
 	Super::BeginPlay();
 
 	// Grab reference to the Pawn this AI Controller is possessing
-	ControlledPawn = Cast<AChuckinAI>(GetPawn());
+	GetControlledPawnReference();
 
 	// Grab reference to the Pawn of the human player, to use for location etc.
 	GetPlayerReference();
@@ -72,14 +70,13 @@ void AChuckinAIController::BeginPlay()
 	AITimeBetweenShots = FMath::RandRange(AITimeBetweenShotsMin, AITimeBetweenShotsMax);
 
 	//NextPathPoint = GetNextPathPoint();
-	MoveTowardsPlayer();
-	
+	//MoveTowardsPlayer();
+
+	// Every 5 seconds Move towards player
+	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenMoveTo, this, &AChuckinAIController::MoveTowardsPlayer, 5.f, true, 2.f);
 
 	// Call FireAtPlayer() function looping
 	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AChuckinAIController::FireAtPlayer, AITimeBetweenShots, true, AITimeBetweenShots);
-
-	// Every 5 seconds Move towards player
-	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenMoveTo, this, &AChuckinAIController::MoveTowardsPlayer, 5.f, true, 5.f);
 
 }
 
@@ -90,8 +87,11 @@ void AChuckinAIController::FireAtPlayer()
 
 	// Look for player every time AI fires? Seems excessive
 	GetPlayerReference();
+	GetControlledPawnReference();
+	//ControlledPawn = Cast<AChuckinAI>(GetPawn());
 	if (!PlayerPawn) { return; }
-
+	if (!ControlledPawn) { return; }
+	
 	//UGameplayStatics::PlaySoundAtLocation(this, ShootingSoundEffect, GetActorLocation());
 	FVector StartLocation = ControlledPawn->GetActorLocation();
 	FVector OutLaunchVelocity(0);
@@ -144,6 +144,7 @@ void AChuckinAIController::MoveTowardsPlayer()
 {
 	// If we don't have a reference to the player pawn because it got destroyed, try and find a new reference.
 	GetPlayerReference();
+	GetControlledPawnReference();
 
 	// If we have valid references to the playerpawn and the AI controlled pawn, then lets MoveToActor
 	if (ControlledPawn && PlayerPawn)
@@ -172,5 +173,14 @@ void AChuckinAIController::GetPlayerReference()
 		PlayerPawn = Cast<AChuckinProtoPawn>(PC->GetPawn());
 	}
 
+}
+void AChuckinAIController::GetControlledPawnReference()
+{
+	APawn* PlayerP = GetPawn();
+	if (PlayerP)
+	{
+		ControlledPawn = Cast<AChuckinAI>(PlayerP);
+	}
+	
 }
 

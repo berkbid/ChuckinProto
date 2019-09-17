@@ -38,22 +38,27 @@ void UChuckinHealthComponent::BeginPlay()
 
 void UChuckinHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Damaged Actor: %s, Damage Causer Actor: %f"), *DamagedActor->GetName(), *InstigatedBy->GetName());
+	//if (DamagedActor)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Damaged Actor: %s"), *DamagedActor->GetName());
+	//}
+	//if (DamageCauser)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Damage Causer: %s"),*DamageCauser->GetName());
+	//}
+
+	// Ignore friendly fire between AI, we already ignore friendly fire with outselves by setting the Owner on ApplyRadialDamage in ChuckinChickin::Explode().
+	// If an AI is the damage causer and damaged actor, ignore damage.
+	if (Cast<AChuckinAI>(DamageCauser) && Cast<AChuckinAI>(DamagedActor))
+	{
+		return;
+	}
+	
+
 	if (Damage <= 0.f || bIsDead)
 	{
 		return;
 	}
-
-	//// Removes friendly fire for self
-	//if (Cast<AChuckinProtoPawn>(DamageCauser) && Cast<AChuckinProtoPawn>(DamagedActor))
-	//{
-	//	return;
-	//}
-	//// Removes friendly fire for AI
-	//if (Cast<AChuckinAI>(DamageCauser) && Cast<AChuckinAI>(DamagedActor))
-	//{
-	//	return;
-	//}
 
 	Health = FMath::Clamp(Health - Damage, 0.f, DefaultHealth);
 	UE_LOG(LogTemp, Warning, TEXT("%s New Health: %f"), *DamagedActor->GetName(), Health);
@@ -75,8 +80,6 @@ void UChuckinHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Da
 		}
 
 	} 
-
-
 }
 
 float UChuckinHealthComponent::GetHealth() const

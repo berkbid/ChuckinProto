@@ -173,9 +173,9 @@ void AChuckinProtoGameMode::GameOver()
 	AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PC)
 	{
-		PC->ShowGameState();
+		//PC->ShowGameState();
+		PC->ShowGameOverMenu();
 	}
-	
 	UE_LOG(LogTemp, Warning, TEXT("GAME OVER! Players Died"));
 }
 

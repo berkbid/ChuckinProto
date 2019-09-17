@@ -6,6 +6,7 @@
 #include "Components/SceneComponent.h"
 #include "ChuckinHealthComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "GameFramework/FloatingPawnMovement.h"
 
 // Sets default values
 AChuckinAI::AChuckinAI()
@@ -19,13 +20,9 @@ AChuckinAI::AChuckinAI()
 	//MeshComp->OnComponentBeginOverlap.AddDynamic(this, &AChuckinChickin::OnOverlapBegin);
 	RootComponent = MeshComp;
 
+	MovementComp = CreateDefaultSubobject<UFloatingPawnMovement>("MovementComp");
+
 	HealthComp = CreateDefaultSubobject<UChuckinHealthComponent>("HealthComp");
 }
 
-// Called when the game starts or when spawned
-void AChuckinAI::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
 

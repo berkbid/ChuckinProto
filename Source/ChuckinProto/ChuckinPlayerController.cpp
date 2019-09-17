@@ -17,7 +17,7 @@ AChuckinPlayerController::AChuckinPlayerController()
 	CrossHairXLocation = 0.5f;
 	CrossHairYLocation = 0.5f;
 
-	// 1millino centimeter range
+	// 1million centimeter range
 	LineTraceRange = 1000000.f;
 
 	GEngine->GameViewport->Viewport->ViewportResizedEvent.AddUObject(this, &AChuckinPlayerController::GetSizeXY);
@@ -62,7 +62,7 @@ void AChuckinPlayerController::SetScreenLocation()
 
 	//UE_LOG(LogTemp, Warning, TEXT("ScreenLocation X: %s"), *FString::SanitizeFloat(ScreenLocation.X));
 	//UE_LOG(LogTemp, Warning, TEXT("ScreenLocation Y: %s"), *FString::SanitizeFloat(ScreenLocation.Y));
-	UE_LOG(LogTemp, Warning, TEXT("ScreenLocation: %s"), *ScreenLocation.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("ScreenLocation: %s"), *ScreenLocation.ToString());
 }
 
 class AChuckinProtoPawn* AChuckinPlayerController::GetCar() const
@@ -148,24 +148,32 @@ void AChuckinPlayerController::ResumePlay()
 {
 	if (UGameplayStatics::SetGamePaused(this, false))
 	{
-		TArray<UUserWidget*> FoundWidgets;
+		//TArray<UUserWidget*> FoundWidgets;
 
-		UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), FoundWidgets, wPauseMenu);
-		for (UUserWidget* UW : FoundWidgets)
+		//UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), FoundWidgets, wPauseMenu);
+		//for (UUserWidget* UW : FoundWidgets)
+		//{
+		//	UW->RemoveFromViewport();
+		//}
+		if (MyPauseMenu)
 		{
-			UW->RemoveFromViewport();
+			MyPauseMenu->RemoveFromViewport();
 		}
 		UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
 		bShowMouseCursor = false;
 	}
 	else
 	{
-		TArray<UUserWidget*> FoundWidgets;
+		//TArray<UUserWidget*> FoundWidgets;
 
-		UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), FoundWidgets, wGameState);
-		for (UUserWidget* UW : FoundWidgets)
+		//UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), FoundWidgets, wGameState);
+		//for (UUserWidget* UW : FoundWidgets)
+		//{
+		//	UW->RemoveFromViewport();
+		//}
+		if (MyGameState)
 		{
-			UW->RemoveFromViewport();
+			MyGameState->RemoveFromViewport();
 		}
 	}
 }

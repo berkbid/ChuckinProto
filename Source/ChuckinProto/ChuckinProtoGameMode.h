@@ -19,6 +19,8 @@ class AChuckinProtoGameMode : public AGameModeBase
 public:
 	AChuckinProtoGameMode();
 
+	virtual void Tick(float DeltaSeconds) override;
+
 	virtual void StartPlay() override;
 
 	void PrepareForSpawn();
@@ -34,11 +36,26 @@ protected:
 	UFUNCTION()
 	void HandleActorKilled(AActor* VictimActor, AActor* KillerActor, AController* KillerController);
 
+	// Blueprint can use to spawn a single bot
+	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
+	void SpawnAITruck();
+
+	void CheckAIAlive();
 
 	void RestartDeadPlayer();
 
 	// Start spawning bots
 	void StartWave();
+
+	// Stop spawning bots
+	void EndWave();
+
+	void GameOver();
+
+	// Set timer for next startwave
+	void PrepareForNextWave();
+
+	void SpawnAITimerElapsed();
 
 	void SetWaveState(EWaveState NewState);
 
@@ -46,8 +63,18 @@ protected:
 
 	FTimerHandle TimerHandle_NextWaveStart;
 
+	FTimerHandle TimerHandle_AISpawn;
+
+	UPROPERTY(EditDefaultsOnly, Category = "GameMode")
+	float TimeBetweenWaves;
+
 	UPROPERTY(EditDefaultsOnly, Category = "GameMode")
 	float TimeBeforeStart;
+
+	// How many AI we are spawning this wave
+	int32 NumberOfAIToSpawn;
+
+	int32 WaveNumber;
 };
 
 

@@ -218,6 +218,20 @@ void AChuckinPlayerController::ShowGameState()
 	}
 }
 
+//void AChuckinPlayerController::ShowGameOverState()
+//{
+//	// Add Game Info widget to viewport
+//	if (wGameState)
+//	{
+//		MyGameState = CreateWidget<UUserWidget>(this, wGameState);
+//
+//		if (MyGameState)
+//		{
+//			MyGameState->AddToViewport();
+//		}
+//	}
+//}
+
 void AChuckinPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();

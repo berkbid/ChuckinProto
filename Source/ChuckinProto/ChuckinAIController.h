@@ -15,6 +15,9 @@ class CHUCKINPROTO_API AChuckinAIController : public AAIController
 	GENERATED_BODY()
 	
 protected:
+
+	virtual void BeginPlay() override;
+
 	void FireAtPlayer();
 
 	FTimerHandle TimerHandle_TimeBetweenShots;
@@ -41,6 +44,7 @@ protected:
 	void GetPlayerReference();
 
 
+	void GetControlledPawnReference();
 public:
 	AChuckinAIController();
 
@@ -51,7 +55,6 @@ public:
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
 private:
-	virtual void BeginPlay() override;
 
 	class AChuckinProtoPawn* PlayerPawn;
 	class AChuckinAI* ControlledPawn;

@@ -55,6 +55,8 @@ public:
 
 	void ShowGameState();
 
+	//void ShowGameOverState();
+
 	FTimerHandle TimerHandle_TimeBetweenShots;
 
 	// Derived from RateOfFire

@@ -11,7 +11,7 @@ enum class EWaveState : uint8
 {
 	WaitingToStart,
 	WaveInProgress,
-	WaitingToComplete,
+	Respawning,
 	GameOver,
 	WaveComplete
 

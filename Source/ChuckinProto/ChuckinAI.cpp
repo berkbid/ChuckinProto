@@ -21,6 +21,7 @@ AChuckinAI::AChuckinAI()
 	RootComponent = MeshComp;
 
 	MovementComp = CreateDefaultSubobject<UFloatingPawnMovement>("MovementComp");
+	//MovementComp->rota
 
 	HealthComp = CreateDefaultSubobject<UChuckinHealthComponent>("HealthComp");
 }

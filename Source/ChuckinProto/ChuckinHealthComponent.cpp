@@ -38,22 +38,22 @@ void UChuckinHealthComponent::BeginPlay()
 
 void UChuckinHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Actor: %s, Took Damage: %f"), *DamagedActor->GetName(), Damage);
+	//UE_LOG(LogTemp, Warning, TEXT("Damaged Actor: %s, Damage Causer Actor: %f"), *DamagedActor->GetName(), *InstigatedBy->GetName());
 	if (Damage <= 0.f || bIsDead)
 	{
 		return;
 	}
 
-	// Removes friendly fire for self
-	if (Cast<AChuckinProtoPawn>(DamageCauser) && Cast<AChuckinProtoPawn>(DamagedActor))
-	{
-		return;
-	}
-	// Removes friendly fire for AI
-	if (Cast<AChuckinAI>(DamageCauser) && Cast<AChuckinAI>(DamagedActor))
-	{
-		return;
-	}
+	//// Removes friendly fire for self
+	//if (Cast<AChuckinProtoPawn>(DamageCauser) && Cast<AChuckinProtoPawn>(DamagedActor))
+	//{
+	//	return;
+	//}
+	//// Removes friendly fire for AI
+	//if (Cast<AChuckinAI>(DamageCauser) && Cast<AChuckinAI>(DamagedActor))
+	//{
+	//	return;
+	//}
 
 	Health = FMath::Clamp(Health - Damage, 0.f, DefaultHealth);
 	UE_LOG(LogTemp, Warning, TEXT("%s New Health: %f"), *DamagedActor->GetName(), Health);
@@ -69,8 +69,8 @@ void UChuckinHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Da
 				// Need to broadcast BEFORE destroy() on owner, or we wont have reference
 				GM->OnActorKilled.Broadcast(GetOwner(), DamageCauser, InstigatedBy);
 				
-				// Destroy owner
-				MyOwner->Destroy();
+				// Destroy owner in Game Mode in OnActorKilled event
+				//MyOwner->Destroy();
 			}
 		}
 

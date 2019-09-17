@@ -83,7 +83,7 @@ void AChuckinProtoPawn::FireAt(FVector HitLocation)
 			DrawDebugLine(GetWorld(), StartLocation, HitLocation, FColor::Blue, false, 5.f, 0, 2.f);
 		}
 		AChuckinChickin* Chicken = Cast<AChuckinChickin>(GetWorld()->SpawnActor<AActor>(ProjectileClass, StartLocation, AimAsRotator, SpawnParams));
-		Chicken->LaunchProjectile(LaunchSpeed);
+		//Chicken->LaunchProjectile(LaunchSpeed);
 
 		AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetController());
 		if (PC)

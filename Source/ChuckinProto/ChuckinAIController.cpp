@@ -53,8 +53,9 @@ void AChuckinAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFo
 {
 	Super::OnMoveCompleted(RequestID, Result);
 
-	// Wait 2 seconds, then re-target player and move towards player again
-	//GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenMoveTo, this, &AChuckinAIController::MoveTowardsPlayer,2.f, false, 2.f);
+	// Wait 2 seconds, then re-target player and move towards player again with a 5 second looping call
+	//GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenMoveTo);
+	//GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenMoveTo, this, &AChuckinAIController::MoveTowardsPlayer, 5.f, true, 2.f);
 }
 
 void AChuckinAIController::BeginPlay()

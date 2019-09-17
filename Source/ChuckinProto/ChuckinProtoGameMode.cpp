@@ -80,10 +80,10 @@ void AChuckinProtoGameMode::HandleActorKilled(AActor* VictimActor, AActor* Kille
 				KillerPS->AddScore(10.f);
 			}
 		}
-		APawn* tempP = Cast<APawn>(VictimActor);
-		if (tempP)
+		APawn* VictimPawn = Cast<APawn>(VictimActor);
+		if (VictimPawn)
 		{
-			AChuckinPlayerState* VictimPS = Cast<AChuckinPlayerState>(tempP->GetPlayerState());
+			AChuckinPlayerState* VictimPS = Cast<AChuckinPlayerState>(VictimPawn->GetPlayerState());
 
 			// This means the victim has AChuckinPlayerState thus must be a player not an AI
 			if (VictimPS)
@@ -93,10 +93,12 @@ void AChuckinProtoGameMode::HandleActorKilled(AActor* VictimActor, AActor* Kille
 			}
 			
 		}
-
-		
 	}
-	
+	if (VictimActor)
+	{
+		VictimActor->Destroy();
+	}
+
 }
 
 void AChuckinProtoGameMode::StartPlay()

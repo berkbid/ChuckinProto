@@ -38,6 +38,8 @@ protected:
 
 	FVector NextPathPoint;
 
+	void GetPlayerReference();
+
 
 public:
 	AChuckinAIController();

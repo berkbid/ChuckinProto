@@ -44,6 +44,17 @@ void UChuckinHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Da
 		return;
 	}
 
+	// Removes friendly fire for self
+	if (Cast<AChuckinProtoPawn>(DamageCauser) && Cast<AChuckinProtoPawn>(DamagedActor))
+	{
+		return;
+	}
+	// Removes friendly fire for AI
+	if (Cast<AChuckinAI>(DamageCauser) && Cast<AChuckinAI>(DamagedActor))
+	{
+		return;
+	}
+
 	Health = FMath::Clamp(Health - Damage, 0.f, DefaultHealth);
 	UE_LOG(LogTemp, Warning, TEXT("%s New Health: %f"), *DamagedActor->GetName(), Health);
 	// Check if we are dead with new health amount
@@ -60,19 +71,6 @@ void UChuckinHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Da
 				
 				// Destroy owner
 				MyOwner->Destroy();
-
-				//APawn* TempPawn = Cast<APawn>(DamagedActor);
-				//if (TempPawn)
-				//{
-				//	if (TempPawn->IsPlayerControlled())
-				//	{
-				//		// Tell Game Mode to Prepare to respawn
-				//		
-				//	}
-				//}
-
-				//GM->PrepareForSpawn();
-
 			}
 		}
 

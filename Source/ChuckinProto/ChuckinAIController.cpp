@@ -65,7 +65,7 @@ void AChuckinAIController::BeginPlay()
 	ControlledPawn = Cast<AChuckinAI>(GetPawn());
 
 	// Grab reference to the Pawn of the human player, to use for location etc.
-	PlayerPawn = Cast<AChuckinProtoPawn>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	GetPlayerReference();
 
 	// Create random amount of time to fire chicken
 	AITimeBetweenShots = FMath::RandRange(AITimeBetweenShotsMin, AITimeBetweenShotsMax);
@@ -88,7 +88,7 @@ void AChuckinAIController::FireAtPlayer()
 	if (!ProjectileClass) { return; }
 
 	// Look for player every time AI fires? Seems excessive
-	PlayerPawn = Cast<AChuckinProtoPawn>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	GetPlayerReference();
 	if (!PlayerPawn) { return; }
 
 	//UGameplayStatics::PlaySoundAtLocation(this, ShootingSoundEffect, GetActorLocation());
@@ -142,13 +142,10 @@ void AChuckinAIController::FireAtPlayer()
 void AChuckinAIController::MoveTowardsPlayer()
 {
 	// If we don't have a reference to the player pawn because it got destroyed, try and find a new reference.
-	if (!PlayerPawn)
-	{
-		PlayerPawn = Cast<AChuckinProtoPawn>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	}
+	GetPlayerReference();
 
 	// If we have valid references to the playerpawn and the AI controlled pawn, then lets MoveToActor
-	if (PlayerPawn && ControlledPawn)
+	if (ControlledPawn && PlayerPawn)
 	{
 		// Must set focus to set focal point for AI to face towards focal point
 		//SetFocus(PlayerPawn);
@@ -156,12 +153,23 @@ void AChuckinAIController::MoveTowardsPlayer()
 		FRotator NewRotation(0);
 		NewRotation.Yaw = ControlledPawn->GetActorRotation().Yaw;
 		ControlledPawn->SetActorRotation(NewRotation, ETeleportType::TeleportPhysics);
-		
+
 		// Move towards actor
 		//MoveToActor(PlayerPawn, 650.f, true, true, true);
-		
+
 		// Should Strafing be false:
 		MoveToActor(PlayerPawn, 650.f, true, true, false);
 	}
+}
+
+void AChuckinAIController::GetPlayerReference()
+{
+
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (PC)
+	{
+		PlayerPawn = Cast<AChuckinProtoPawn>(PC->GetPawn());
+	}
+
 }
 

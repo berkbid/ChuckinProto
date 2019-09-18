@@ -82,6 +82,18 @@ void UChuckinHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Da
 	} 
 }
 
+void UChuckinHealthComponent::Heal(float HealAmount)
+{
+	if (HealAmount <= 0.f || Health <= 0.f)
+	{
+		return;
+	}
+
+	Health = FMath::Clamp(Health + HealAmount, 0.f, DefaultHealth);
+	//UE_LOG(LogTemp, Warning, TEXT("%s HEALED FOR: %f new health: %f"), *MyOwner->GetName(), HealAmount, Health);
+
+}
+
 float UChuckinHealthComponent::GetHealth() const
 {
 	return Health;

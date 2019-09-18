@@ -19,7 +19,7 @@ class AChuckinProtoGameMode : public AGameModeBase
 public:
 	AChuckinProtoGameMode();
 
-	virtual void Tick(float DeltaSeconds) override;
+	//virtual void Tick(float DeltaSeconds) override;
 
 	virtual void StartPlay() override;
 
@@ -51,6 +51,8 @@ protected:
 	void EndWave();
 
 	void GameOver();
+
+	void GameWon();
 
 	// Set timer for next startwave
 	void PrepareForNextWave();

@@ -29,6 +29,7 @@
 #include "ChuckinHealthComponent.h"
 #include "Math/TransformNonVectorized.h"
 #include "ChuckinPlayerState.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #ifndef HMD_MODULE_INCLUDED
 #define HMD_MODULE_INCLUDED 0
@@ -51,61 +52,44 @@ FAutoConsoleVariableRef CVARDebugCarDrawing(
 	TEXT("Draw Debug Lines for Car"),
 	ECVF_Cheat);
 
-void AChuckinProtoPawn::FireAt(FVector HitLocation)
+void AChuckinProtoPawn::FireAt()
 {
 	if (!ProjectileClass) { return; }
-	UE_LOG(LogTemp, Warning, TEXT("Firing at: %s"), *HitLocation.ToString());
+
 	UGameplayStatics::PlaySoundAtLocation(this, ShootingSoundEffect, GetActorLocation());
+
 	FVector StartLocation = GetMesh()->GetSocketLocation(MuzzleSocketName);
-	FVector OutLaunchVelocity(0);
 	
-	if (UGameplayStatics::SuggestProjectileVelocity(
-		this,
-		OutLaunchVelocity,
-		StartLocation,
-		HitLocation,
-		LaunchSpeed,
-		false,
-		0.f,
-		0.f,
-		ESuggestProjVelocityTraceOption::DoNotTrace
-		)
-	)
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = this;
+	SpawnParams.Owner = this;
+	FRotator CamRotation;
+
+	if (bInCarCameraActive)
 	{
-		FVector AimDirection = OutLaunchVelocity.GetSafeNormal();
-		FRotator AimAsRotator = AimDirection.Rotation();
+		CamRotation = InternalCamera->GetComponentRotation();
+	}
+	else
+	{
+		CamRotation = Camera->GetComponentRotation();
 
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Instigator = this;
-		SpawnParams.Owner = this;
-
-		if (DebugCarDrawing)
+		// Only if bInCarCameraActive is FALSE AND the camera is locked, we need to add Pitch to rotation as quick fix for now...
+		if (bIsCameraLocked)
 		{
-			DrawDebugLine(GetWorld(), StartLocation, HitLocation, FColor::Blue, false, 5.f, 0, 2.f);
+			CamRotation.Pitch += 10.f;
 		}
-		AChuckinChickin* Chicken = Cast<AChuckinChickin>(GetWorld()->SpawnActor<AActor>(ProjectileClass, StartLocation, AimAsRotator, SpawnParams));
-		//Chicken->LaunchProjectile(LaunchSpeed);
+	}
 
-		AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetController());
-		if (PC)
-		{
-			PC->LastFireTime = GetWorld()->TimeSeconds;
-		}
+	AChuckinChickin* Chicken = Cast<AChuckinChickin>(GetWorld()->SpawnActor<AActor>(ProjectileClass, StartLocation, CamRotation, SpawnParams));
+
+	AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetController());
+	if (PC)
+	{
+		PC->LastFireTime = GetWorld()->TimeSeconds;
 	}
 }
 
-
-void AChuckinProtoPawn::OnDeath()
-{
-	if (bIsDead) { return; }
-	bIsDead = true;
-
-	//GetMovementComponent()->StopMovementImmediately();
-	//GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//DetachFromControllerPendingDestroy();
-	SetLifeSpan(1.f);
-}
 
 #define LOCTEXT_NAMESPACE "VehiclePawn"
 
@@ -334,6 +318,7 @@ void AChuckinProtoPawn::OnHandbrakeReleased()
 
 void AChuckinProtoPawn::OnToggleCamera()
 {
+	// TODO: CHANGE camera to use for camera rotation to the INSIDE camera.
 	EnableIncarView(!bInCarCameraActive);
 }
 

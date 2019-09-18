@@ -13,6 +13,7 @@
 #include "BluePrint/WidgetBlueprintLibrary.h"
 #include "ChuckinGameState.h"
 #include "ChuckinProtoPawn.h"
+#include "ChuckinChickin.h"
 
 AChuckinPlayerController::AChuckinPlayerController()
 {
@@ -76,10 +77,6 @@ void AChuckinPlayerController::SetScreenLocation()
 		ScreenLocation.X = ViewportSizeX * CrossHairXLocation;
 		ScreenLocation.Y = ViewportSizeY * CrossHairYLocation;
 	}
-
-	//UE_LOG(LogTemp, Warning, TEXT("ScreenLocation X: %s"), *FString::SanitizeFloat(ScreenLocation.X));
-	//UE_LOG(LogTemp, Warning, TEXT("ScreenLocation Y: %s"), *FString::SanitizeFloat(ScreenLocation.Y));
-	//UE_LOG(LogTemp, Warning, TEXT("ScreenLocation: %s"), *ScreenLocation.ToString());
 }
 
 class AChuckinProtoPawn* AChuckinPlayerController::GetCar() const
@@ -89,54 +86,9 @@ class AChuckinProtoPawn* AChuckinPlayerController::GetCar() const
 
 void AChuckinPlayerController::FireAtCrosshair()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("PC: No Owned Car"));
 	if (!GetCar()) { return; }
-	//UE_LOG(LogTemp, Warning, TEXT("PC: Found Owned Car"));
-	FVector CameraLocation;
-	FVector LookDirection;
 
-	if (DeprojectScreenPositionToWorld(ScreenLocation.X, ScreenLocation.Y, CameraLocation, LookDirection))
-	{
-		FVector HitLocation;
-		//UE_LOG(LogTemp, Warning, TEXT("Look Direction: %s"), *WorldDirection.ToString());
-		FHitResult TraceHitResult;
-		FVector StartLocation = PlayerCameraManager->GetCameraLocation();
-		FVector EndLocation = StartLocation + LookDirection * LineTraceRange;
-
-		// Ignoring the controlled car from line trace collision for when the crosshair is on the Car
-		FCollisionQueryParams CollisionParams;
-		CollisionParams.AddIgnoredActor(GetCar());
-
-		if (
-			GetWorld()->LineTraceSingleByChannel(
-				TraceHitResult,
-				StartLocation,
-				EndLocation,
-				ECollisionChannel::ECC_Visibility,
-				CollisionParams
-			)
-			)
-		{
-			if (Cast<AActor>(TraceHitResult.Actor))
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *(TraceHitResult.Actor->GetName()));
-			}
-			
-			HitLocation = TraceHitResult.Location;
-
-			// Only call AimAt if LineTrace succeeds
-			GetCar()->FireAt(HitLocation);
-		}
-		else
-		{
-			HitLocation = FVector(0);
-			UE_LOG(LogTemp, Warning, TEXT("Hit Actor: NONE"));
-		}
-
-
-		//UE_LOG(LogTemp, Warning, TEXT("Hit Location: %s"), *HitLocation.ToString());
-
-	}
+	GetCar()->FireAt();
 }
 
 void AChuckinPlayerController::GetSizeXY(FViewport* ViewPort, uint32 val)
@@ -147,7 +99,6 @@ void AChuckinPlayerController::GetSizeXY(FViewport* ViewPort, uint32 val)
 
 void AChuckinPlayerController::StartFireTarget()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("PC::StartFire"));
 	// This makes it so you cannot single fire faster than you can automatic fire
 	// Use greatest of first or 2nd value, clamps between 0 and other value
 	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0.0f);
@@ -165,13 +116,6 @@ void AChuckinPlayerController::ResumePlay()
 {
 	if (UGameplayStatics::SetGamePaused(this, false))
 	{
-		//TArray<UUserWidget*> FoundWidgets;
-
-		//UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), FoundWidgets, wPauseMenu);
-		//for (UUserWidget* UW : FoundWidgets)
-		//{
-		//	UW->RemoveFromViewport();
-		//}
 		if (MyPauseMenu)
 		{
 			MyPauseMenu->RemoveFromViewport();
@@ -181,13 +125,6 @@ void AChuckinPlayerController::ResumePlay()
 	}
 	else
 	{
-		//TArray<UUserWidget*> FoundWidgets;
-
-		//UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), FoundWidgets, wGameState);
-		//for (UUserWidget* UW : FoundWidgets)
-		//{
-		//	UW->RemoveFromViewport();
-		//}
 		if (MyGameState)
 		{
 			MyGameState->RemoveFromViewport();
@@ -197,14 +134,6 @@ void AChuckinPlayerController::ResumePlay()
 
 void AChuckinPlayerController::RestartLevelNew()
 {
-	//AChuckinGameState* GS = Cast<AChuckinGameState>(GetWorld()->GetGameState());
-	//if (GS)
-	//{
-	//	if (GS->GetWaveState() == EWaveState::GameOver)
-	//	{
-	//		return;
-	//	}
-	//}
 	UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
 	bShowMouseCursor = false;
 	RestartLevel();
@@ -213,16 +142,6 @@ void AChuckinPlayerController::RestartLevelNew()
 
 void AChuckinPlayerController::PauseGame()
 {
-	// Don't allow pause when game is over, check wave state in GameState class
-	AChuckinGameState* GS = Cast<AChuckinGameState>(GetWorld()->GetGameState());
-	if (GS)
-	{
-		if (GS->GetWaveState() == EWaveState::GameOver)
-		{
-			return;
-		}
-	}
-
 	// Try to pause the game and if it succeeds, display the UI
 	if (UGameplayStatics::SetGamePaused(this, true))
 	{
@@ -269,20 +188,6 @@ void  AChuckinPlayerController::ShowGameOverMenu()
 		}
 	}
 }
-
-//void AChuckinPlayerController::ShowGameOverState()
-//{
-//	// Add Game Info widget to viewport
-//	if (wGameState)
-//	{
-//		MyGameState = CreateWidget<UUserWidget>(this, wGameState);
-//
-//		if (MyGameState)
-//		{
-//			MyGameState->AddToViewport();
-//		}
-//	}
-//}
 
 void AChuckinPlayerController::SetupInputComponent()
 {

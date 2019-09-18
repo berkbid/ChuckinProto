@@ -24,6 +24,7 @@ AChuckinProtoGameMode::AChuckinProtoGameMode()
 	NumberOfAIToSpawn = 3;
 	WaveNumber = 0;
 	TimeBetweenWaves = 2.f;
+	NumAIAddedPerWave = 10;
 
 	// Set Default Pawn Class From Blueprint
 	static ConstructorHelpers::FClassFinder<AChuckinProtoPawn> PlayerPawnClassFinder(TEXT("/Game/Blueprints/BP_CarPawn"));
@@ -151,10 +152,9 @@ void AChuckinProtoGameMode::PrepareForSpawn()
 
 void AChuckinProtoGameMode::StartWave()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Starting Wave"));
 	WaveNumber++;
-	NumberOfAIToSpawn = 10 * WaveNumber;
-	UE_LOG(LogTemp, Warning, TEXT("Spawning %d AI TRUCKS"), NumberOfAIToSpawn);
+	NumberOfAIToSpawn = NumAIAddedPerWave * WaveNumber;
+	UE_LOG(LogTemp, Warning, TEXT("Starting Wave: Spawning %d AI TRUCKS"), NumberOfAIToSpawn);
 
 	GetWorldTimerManager().SetTimer(TimerHandle_AISpawn, this, &AChuckinProtoGameMode::SpawnAITimerElapsed, 0.5f, true, 0.f);
 }
@@ -171,13 +171,14 @@ void AChuckinProtoGameMode::GameOver()
 {
 	EndWave();
 	SetWaveState(EWaveState::GameOver);
+
 	AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PC)
 	{
-		//PC->ShowGameState();
+		// Disable player controller input upon game over so they cannot shoot or pause or restart level
+		PC->DisableInput(PC);
 		PC->ShowGameOverMenu();
 	}
-	UE_LOG(LogTemp, Warning, TEXT("GAME OVER! Players Died"));
 }
 
 void AChuckinProtoGameMode::PrepareForNextWave()

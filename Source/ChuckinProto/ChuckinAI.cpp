@@ -25,6 +25,8 @@ AChuckinAI::AChuckinAI()
 	MovementComp = CreateDefaultSubobject<UFloatingPawnMovement>("MovementComp");
 	MovementComp->MaxSpeed = 800.f;
 	MovementComp->TurningBoost = 24.f;
+	//MovementComp->UpdatedComponent
+	MovementComp->SetUpdatedComponent(RootComponent);
 	
 
 	HealthComp = CreateDefaultSubobject<UChuckinHealthComponent>("HealthComp");

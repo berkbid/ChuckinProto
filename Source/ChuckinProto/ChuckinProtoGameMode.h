@@ -71,6 +71,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "GameMode")
 	float TimeBeforeStart;
 
+	UPROPERTY(EditDefaultsOnly, Category = "GameMode")
+	int32 NumAIAddedPerWave;
+
 	// How many AI we are spawning this wave
 	int32 NumberOfAIToSpawn;
 

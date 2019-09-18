@@ -197,6 +197,16 @@ void AChuckinPlayerController::ResumePlay()
 
 void AChuckinPlayerController::RestartLevelNew()
 {
+	//AChuckinGameState* GS = Cast<AChuckinGameState>(GetWorld()->GetGameState());
+	//if (GS)
+	//{
+	//	if (GS->GetWaveState() == EWaveState::GameOver)
+	//	{
+	//		return;
+	//	}
+	//}
+	UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
+	bShowMouseCursor = false;
 	RestartLevel();
 }
 
@@ -246,7 +256,8 @@ void AChuckinPlayerController::ShowGameState()
 	}
 }
 
-void  AChuckinPlayerController::ShowGameOverMenu() {
+void  AChuckinPlayerController::ShowGameOverMenu() 
+{
 	if (wGameOverMenu) 
 	{
 		MyGameOverMenu = CreateWidget<UUserWidget>(this, wGameOverMenu);

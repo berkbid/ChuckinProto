@@ -158,9 +158,7 @@ public:
 
 	float LastFireTime;
 
-	void FireAt(FVector HitLocation);
-
-	void OnDeath();
+	void FireAt();
 
 	/* RPM - Bullets per minute fired by weapon */
 	UPROPERTY(EditDefaultsOnly, Category = "Chicken")

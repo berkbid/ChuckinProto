@@ -96,55 +96,27 @@ void AChuckinAIController::FireAtPlayer()
 	// Look for player every time AI fires? Seems excessive
 	GetPlayerReference();
 	GetControlledPawnReference();
-	//ControlledPawn = Cast<AChuckinAI>(GetPawn());
 	if (!PlayerPawn) { return; }
 	if (!ControlledPawn) { return; }
 	
-	//UGameplayStatics::PlaySoundAtLocation(this, ShootingSoundEffect, GetActorLocation());
 	FVector StartLocation = ControlledPawn->GetActorLocation();
-	FVector OutLaunchVelocity(0);
+
 	FVector HitLocation = PlayerPawn->GetTargetLocation();
 	float LaunchSpeed = 10000.f;
 
-	if (UGameplayStatics::SuggestProjectileVelocity(
-		this,
-		OutLaunchVelocity,
-		StartLocation,
-		HitLocation,
-		LaunchSpeed,
-		false,
-		0.f,
-		0.f,
-		ESuggestProjVelocityTraceOption::DoNotTrace
-	)
-		)
+	FRotator LookRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, HitLocation);
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = ControlledPawn;
+	SpawnParams.Owner = ControlledPawn;
+
+	//UE_LOG(LogTemp, Warning, TEXT("AI Location: %s"), *ControlledPawn->GetActorLocation().ToString());
+	AChuckinChickin* Chicken = Cast<AChuckinChickin>(GetWorld()->SpawnActor<AActor>(ProjectileClass, StartLocation, LookRotation, SpawnParams));
+	if (Chicken)
 	{
-		FVector AimDirection = OutLaunchVelocity.GetSafeNormal();
-		FRotator AimAsRotator = AimDirection.Rotation();
-
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Instigator = ControlledPawn;
-		SpawnParams.Owner = ControlledPawn;
-
-		if (DebugAIDrawing)
-		{
-			DrawDebugLine(GetWorld(), StartLocation, HitLocation, FColor::Blue, false, 5.f, 0, 2.f);
-		}
-		
-		//UE_LOG(LogTemp, Warning, TEXT("AI Location: %s"), *ControlledPawn->GetActorLocation().ToString());
-		AChuckinChickin* Chicken = Cast<AChuckinChickin>(GetWorld()->SpawnActor<AActor>(ProjectileClass, StartLocation, AimAsRotator, SpawnParams));
-		//ControlledPawn->MoveIgnoreActorAdd(Chicken);
-
-		// This seems to have no effect to the chicken launchspeed.
-		// TODO: Figure out how to change chicken speed on launch
-		if (Chicken)
-		{
-			Chicken->LaunchProjectile(LaunchSpeed);
-		}
-		
+		Chicken->LaunchProjectile(LaunchSpeed);
 	}
-
 	AITimeBetweenShots = FMath::RandRange(AITimeBetweenShotsMin, AITimeBetweenShotsMax);
 }
 

@@ -61,14 +61,28 @@ void AChuckinAIController::Tick(float Delta)
 	}
 }
 
-// Event overriden from parent, when AI completes movement to a location
-void AChuckinAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
-{
-	Super::OnMoveCompleted(RequestID, Result);
 
-	// Wait 2 seconds, then re-target player and move towards player again with a 5 second looping call
-	//GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenMoveTo);
-	//GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenMoveTo, this, &AChuckinAIController::MoveTowardsPlayer, 5.f, true, 2.f);
+// Hook onto when the player is destroyed event
+void AChuckinAIController::HandlePlayerDestroyed(AActor* Act)
+{
+	// Set this reference to nullptr so this AI needs a new reference and will run the code inside GetPlayerReference()
+	PlayerPawn = nullptr;
+
+	// Stop AI movement when player has died
+	StopMovement();
+
+	// Setup random delays to start performing move/shoot again after player has died
+	float SpawnDelay = FMath::RandRange(5.f, 8.f);
+	float ShootDelay = FMath::RandRange(3.f, 6.f);
+
+	// Clear timer for AI moving towards player, wait 8seconds(3 for player respawn, 5 to let player breath) before looping MoveTowardsPlayer every 5 seconds again
+	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenMoveTo);
+	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenMoveTo, this, &AChuckinAIController::MoveTowardsPlayer, 5.f, true, SpawnDelay);
+
+	// Clear timer for AI shooting player, wait 8seconds before looping FireAtPlayer again
+	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
+	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AChuckinAIController::FireAtPlayer, AITimeBetweenShots, true, ShootDelay + AITimeBetweenShots);
+
 }
 
 void AChuckinAIController::BeginPlay()
@@ -145,7 +159,7 @@ void AChuckinAIController::MoveTowardsPlayer()
 
 		// Move towards actor
 		//MoveToActor(PlayerPawn, 650.f, true, true, true);
-
+		
 		// Should Strafing be false:
 		MoveToActor(PlayerPawn, AIDistanceToPlayer, true, true, false);
 	}
@@ -153,11 +167,22 @@ void AChuckinAIController::MoveTowardsPlayer()
 
 void AChuckinAIController::GetPlayerReference()
 {
-
-	APlayerController* PC = GetWorld()->GetFirstPlayerController();
-	if (PC)
+	// If we don't have a reference to player, get it and hook on the destroy event
+	if (!PlayerPawn)
 	{
-		PlayerPawn = Cast<AChuckinProtoPawn>(PC->GetPawn());
+		APlayerController* PC = GetWorld()->GetFirstPlayerController();
+		if (PC)
+		{
+			APawn* PPawn = PC->GetPawn();
+			if (PPawn)
+			{
+				// Hook to destroyed event of pawn since this is first time getting reference to it
+				PPawn->OnDestroyed.AddDynamic(this, &AChuckinAIController::HandlePlayerDestroyed);
+
+				// Set PlayerPawn pointer to the player
+				PlayerPawn = Cast<AChuckinProtoPawn>(PPawn);
+			}
+		}
 	}
 
 }

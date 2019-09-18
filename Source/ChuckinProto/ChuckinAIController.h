@@ -56,8 +56,8 @@ public:
 	// Begin Actor interface
 	virtual void Tick(float Delta) override;
 
-	// Override method that handles when movement is completed
-	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
+	UFUNCTION()
+	void HandlePlayerDestroyed(AActor* Act);
 
 private:
 

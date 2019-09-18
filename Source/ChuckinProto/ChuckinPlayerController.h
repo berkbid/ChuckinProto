@@ -54,7 +54,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	void ResumePlay();
 
-	void RestartPlayerNew();
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void RestartLevelNew();
 
 	void PauseGame();
 

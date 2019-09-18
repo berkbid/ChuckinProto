@@ -26,6 +26,7 @@ AChuckinProtoGameMode::AChuckinProtoGameMode()
 	WaveNumber = 0;
 	TimeBetweenWaves = 2.f;
 	NumAIAddedPerWave = 10;
+	NumberOfWavesForVictory = 2;
 
 	// Set Default Pawn Class From Blueprint
 	static ConstructorHelpers::FClassFinder<AChuckinProtoPawn> PlayerPawnClassFinder(TEXT("/Game/Blueprints/BP_CarPawn"));
@@ -149,7 +150,17 @@ void AChuckinProtoGameMode::StartWave()
 	NumberOfAIToSpawn = NumAIAddedPerWave * WaveNumber;
 	UE_LOG(LogTemp, Warning, TEXT("Starting Wave: Spawning %d AI TRUCKS"), NumberOfAIToSpawn);
 
+	// Remove GameState information (wave information) from viewport
+	AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC)
+	{
+		PC->ResumePlay();
+	}
+
+	// Start spawning AI every 0.5 seconds
 	GetWorldTimerManager().SetTimer(TimerHandle_AISpawn, this, &AChuckinProtoGameMode::SpawnAITimerElapsed, 0.5f, true, 0.f);
+
+	SetWaveState(EWaveState::WaveInProgress);
 }
 
 
@@ -205,17 +216,25 @@ void AChuckinProtoGameMode::GameWon()
 void AChuckinProtoGameMode::PrepareForNextWave()
 {
 	// Display Game Won after clearing 2 waves
-	if (WaveNumber == 2)
+	if (WaveNumber == NumberOfWavesForVictory)
 	{
 		GameWon();
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Prepare For Wave #%d"), WaveNumber + 1);
+		SetWaveState(EWaveState::WaitingToStart);
+
+		// Display wave information
+		AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetWorld()->GetFirstPlayerController());
+		if (PC)
+		{
+			PC->ShowGameState();
+		}
+		//UE_LOG(LogTemp, Warning, TEXT("Prepare For Wave #%d"), WaveNumber + 1);
 
 		GetWorldTimerManager().SetTimer(TimerHandle_NextWaveStart, this, &AChuckinProtoGameMode::StartWave, TimeBetweenWaves, false);
 
-		SetWaveState(EWaveState::WaitingToStart);
+		
 	}
 
 

@@ -13,12 +13,13 @@
 #include "GameFramework/Controller.h"
 #include "ChuckinAI.h"
 #include "ChuckinHealthComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 AChuckinProtoGameMode::AChuckinProtoGameMode()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	//PrimaryActorTick.bCanEverTick = true;
 	// Set tick interval to 1 second
-	PrimaryActorTick.TickInterval = 1.f;
+	//PrimaryActorTick.TickInterval = 1.f;
 
 	TimeBeforeStart = 3.f;
 	NumberOfAIToSpawn = 3;
@@ -60,21 +61,7 @@ AChuckinProtoGameMode::AChuckinProtoGameMode()
 	{
 		HUDClass = PlayerHUDClassFinder.Class;
 	}
-
-
-	//HUDClass = AChuckinProtoHud::StaticClass();
 	
-}
-
-void AChuckinProtoGameMode::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
-	// Instead of checking every second, could bind event to bot being destroyed and hook to it
-	CheckAIAlive();
-
-	// Could also bind to when players die instead of check every second
-	//CheckAnyPlayerAlive();
 }
 
 void AChuckinProtoGameMode::StartPlay()
@@ -124,10 +111,14 @@ void AChuckinProtoGameMode::HandleActorKilled(AActor* VictimActor, AActor* Kille
 				}
 				else
 				{
-					// TODO: STopmovementofallAI
 					PrepareForSpawn();
 				}
 				
+			}
+			// Handle AI dying
+			else
+			{
+				CheckAIAlive();
 			}
 			
 		}
@@ -154,6 +145,7 @@ void AChuckinProtoGameMode::PrepareForSpawn()
 void AChuckinProtoGameMode::StartWave()
 {
 	WaveNumber++;
+
 	NumberOfAIToSpawn = NumAIAddedPerWave * WaveNumber;
 	UE_LOG(LogTemp, Warning, TEXT("Starting Wave: Spawning %d AI TRUCKS"), NumberOfAIToSpawn);
 
@@ -182,12 +174,50 @@ void AChuckinProtoGameMode::GameOver()
 	}
 }
 
+void AChuckinProtoGameMode::GameWon()
+{
+	EndWave();
+	SetWaveState(EWaveState::GameWon);
+
+	AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC)
+	{
+		// Disable Player Controller Player Input
+		PC->DisableInput(PC);
+
+		APawn* MyPawn = PC->GetPawn();
+		if (MyPawn)
+		{
+			// Stop firing towards target, fixes bug if player is holding down mouse left while game is won
+			PC->StopFireTarget();
+
+			// Since we won, Pawn is still alive, Disable Pawn PlayerInput also
+			MyPawn->DisableInput(PC);
+
+			// Stop pawn movement upon game win
+			MyPawn->GetMovementComponent()->StopMovementImmediately();
+		}
+
+		PC->ShowGameOverMenu();
+	}
+}
+
 void AChuckinProtoGameMode::PrepareForNextWave()
 {
-	UE_LOG(LogTemp, Warning, TEXT("PrepareForNextWave()"))
-	GetWorldTimerManager().SetTimer(TimerHandle_NextWaveStart, this, &AChuckinProtoGameMode::StartWave, TimeBetweenWaves, false);
+	// Display Game Won after clearing 2 waves
+	if (WaveNumber == 2)
+	{
+		GameWon();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Prepare For Wave #%d"), WaveNumber + 1);
 
-	SetWaveState(EWaveState::WaitingToStart);
+		GetWorldTimerManager().SetTimer(TimerHandle_NextWaveStart, this, &AChuckinProtoGameMode::StartWave, TimeBetweenWaves, false);
+
+		SetWaveState(EWaveState::WaitingToStart);
+	}
+
 
 }
 

@@ -13,7 +13,8 @@ enum class EWaveState : uint8
 	WaveInProgress,
 	Respawning,
 	GameOver,
-	WaveComplete
+	WaveComplete,
+	GameWon
 
 };
 

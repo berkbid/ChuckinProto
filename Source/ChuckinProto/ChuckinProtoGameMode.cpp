@@ -124,6 +124,7 @@ void AChuckinProtoGameMode::HandleActorKilled(AActor* VictimActor, AActor* Kille
 				}
 				else
 				{
+					// TODO: STopmovementofallAI
 					PrepareForSpawn();
 				}
 				

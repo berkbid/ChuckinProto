@@ -100,6 +100,8 @@ protected:
 
 	bool bIsDead;
 
+	
+
 public:
 	// End Actor interface
 
@@ -127,6 +129,16 @@ public:
 	void OnResetVR();
 
 	void FlipCar();
+
+	void LockCamera();
+	bool bIsCameraLocked;
+	
+
+	// Used to store starting transform values of camera in order to lock it for later
+	FTransform DefaultAzimuthTransform;
+
+	// Used to store starting transform values of camera in order to lock it for later
+	FTransform DefaultSpringArmTransform;
 
 	static const FName LookUpBinding;
 	static const FName LookRightBinding;

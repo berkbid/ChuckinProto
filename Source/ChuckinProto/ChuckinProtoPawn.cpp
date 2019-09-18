@@ -27,6 +27,8 @@
 #include "Classes/Sound/SoundBase.h" 
 #include "Kismet/GameplayStatics.h"
 #include "ChuckinHealthComponent.h"
+#include "Math/TransformNonVectorized.h"
+#include "ChuckinPlayerState.h"
 
 #ifndef HMD_MODULE_INCLUDED
 #define HMD_MODULE_INCLUDED 0
@@ -266,6 +268,19 @@ AChuckinProtoPawn::AChuckinProtoPawn()
 	LaunchSpeed = 10000.f;
 	bIsDead = false;
 
+	// Initialize bIsCameraLocked as false, this will get overriden upon respawns in beginplay as the PlayerController holds a more permanent value
+	bIsCameraLocked = false;
+
+	// Capture the initial transform for these components so we can Lock them back here when we press "c" keybind to lock camera
+	if (SpringArm)
+	{
+		DefaultSpringArmTransform = SpringArm->GetRelativeTransform();
+	}
+	if (AzimuthGimbal)
+	{
+		DefaultAzimuthTransform = AzimuthGimbal->GetRelativeTransform();
+	}
+
 }
 
 void AChuckinProtoPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -289,9 +304,8 @@ void AChuckinProtoPawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AChuckinProtoPawn::OnResetVR); 
 
 	PlayerInputComponent->BindAction("FlipCar", IE_Pressed, this, &AChuckinProtoPawn::FlipCar);
-
-
-
+	PlayerInputComponent->BindAction("LockCamera", IE_Pressed, this, &AChuckinProtoPawn::LockCamera);
+	
 	
 
 }
@@ -406,6 +420,15 @@ void AChuckinProtoPawn::BeginPlay()
 
 	TimeBetweenShots = 60.f / RateOfFire;
 
+	// This should be moved to a method that fires once this pawn is possessed. We can only find playercontroller reference with the UGamePlayStatics method.
+	// Using the self->GetController() won't work at BeginPlay()... But this workaround below does.
+	// Get this boolean value from player controller since player controller will have a persistent value when pawn dies and respawns
+	AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (PC)
+	{
+		bIsCameraLocked = PC->bShouldCameraBeLocked;
+	}
+
 
 }
 
@@ -427,6 +450,34 @@ void AChuckinProtoPawn::FlipCar()
 	NewRotation.Yaw = GetActorRotation().Yaw;
 
 	SetActorRotation(NewRotation, ETeleportType::TeleportPhysics);
+}
+
+void AChuckinProtoPawn::LockCamera()
+{
+	// This boolean will stop the mouse inputs from being processed for camera movement
+	bIsCameraLocked = !bIsCameraLocked;
+
+	// Set up a persistent boolean value in the player controller for if player dies and respawns
+	AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetController());
+	if (PC)
+	{
+
+		PC->bShouldCameraBeLocked = bIsCameraLocked;
+	}
+
+	// If we are now locking the camera, let's set the relative transform for the azimuth and spring arm to the default values we captured in constructor
+	if (bIsCameraLocked)
+	{
+		if (AzimuthGimbal)
+		{
+			AzimuthGimbal->SetRelativeTransform(DefaultAzimuthTransform);
+		}
+		if (SpringArm)
+		{
+			SpringArm->SetRelativeTransform(DefaultSpringArmTransform);
+		}
+	}
+
 }
 
 void AChuckinProtoPawn::UpdateHUDStrings()
@@ -489,7 +540,8 @@ void AChuckinProtoPawn::UpdatePhysicsMaterial()
 
 void AChuckinProtoPawn::LookUpNew(float Val)
 {
-	//hi
+	if (bIsCameraLocked) { return; }
+
 	FRotator LocalRotate(0);
 	LocalRotate.Pitch = Val;
 	if (SpringArm)
@@ -500,13 +552,14 @@ void AChuckinProtoPawn::LookUpNew(float Val)
 
 void AChuckinProtoPawn::LookRightNew(float Val)
 {
+	if (bIsCameraLocked) { return; }
+
 	FRotator LocalRotate(0);
 	LocalRotate.Yaw = Val;
 	if (AzimuthGimbal)
 	{
 		AzimuthGimbal->AddLocalRotation(LocalRotate);
 	}
-	
 }
 
 #undef LOCTEXT_NAMESPACE

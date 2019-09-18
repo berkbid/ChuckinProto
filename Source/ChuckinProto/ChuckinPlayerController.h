@@ -19,7 +19,7 @@ class CHUCKINPROTO_API AChuckinPlayerController : public APlayerController
 public:
 	AChuckinPlayerController();
 
-	
+	virtual void SetPawn(APawn* InPawn) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<class UUserWidget> wCrosshair;
@@ -74,6 +74,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Chicken")
 	float RateOfFire;
+
+	bool bShouldCameraBeLocked;
 
 
 protected:

@@ -155,7 +155,8 @@ void AChuckinProtoGameMode::StartWave()
 	WaveNumber++;
 	NumberOfAIToSpawn = 10 * WaveNumber;
 	UE_LOG(LogTemp, Warning, TEXT("Spawning %d AI TRUCKS"), NumberOfAIToSpawn);
-	GetWorldTimerManager().SetTimer(TimerHandle_AISpawn, this, &AChuckinProtoGameMode::SpawnAITimerElapsed, 1.f, true, 0.f);
+
+	GetWorldTimerManager().SetTimer(TimerHandle_AISpawn, this, &AChuckinProtoGameMode::SpawnAITimerElapsed, 0.5f, true, 0.f);
 }
 
 

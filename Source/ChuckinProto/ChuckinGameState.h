@@ -28,9 +28,12 @@ class CHUCKINPROTO_API AChuckinGameState : public AGameStateBase
 
 protected:
 
-	UPROPERTY(BlueprintReadOnly, Category = "GameState")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GameState")
 	EWaveState WaveState;
 	
 public:
 	void SetWaveState(EWaveState NewState);
+
+	UFUNCTION(BlueprintCallable)
+	EWaveState GetWaveState() const;
 };

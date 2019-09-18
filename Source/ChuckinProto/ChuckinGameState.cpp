@@ -7,3 +7,8 @@ void AChuckinGameState::SetWaveState(EWaveState NewState)
 {
 	WaveState = NewState;
 }
+
+EWaveState AChuckinGameState::GetWaveState() const
+{
+	return WaveState;
+}

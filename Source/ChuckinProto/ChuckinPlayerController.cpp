@@ -11,6 +11,7 @@
 #include "TimerManager.h"
 #include "ChuckinProtoGameMode.h"
 #include "BluePrint/WidgetBlueprintLibrary.h"
+#include "ChuckinGameState.h"
 
 AChuckinPlayerController::AChuckinPlayerController()
 {
@@ -178,7 +179,7 @@ void AChuckinPlayerController::ResumePlay()
 	}
 }
 
-void AChuckinPlayerController::RestartPlayerNew()
+void AChuckinPlayerController::RestartLevelNew()
 {
 	RestartLevel();
 }
@@ -186,6 +187,17 @@ void AChuckinPlayerController::RestartPlayerNew()
 
 void AChuckinPlayerController::PauseGame()
 {
+	// Don't allow pause when game is over, check wave state in GameState class
+	AChuckinGameState* GS = Cast<AChuckinGameState>(GetWorld()->GetGameState());
+	if (GS)
+	{
+		if (GS->GetWaveState() == EWaveState::GameOver)
+		{
+			return;
+		}
+	}
+
+	// Try to pause the game and if it succeeds, display the UI
 	if (UGameplayStatics::SetGamePaused(this, true))
 	{
 		// Add Game Info widget to viewport
@@ -255,7 +267,7 @@ void AChuckinPlayerController::SetupInputComponent()
 	InputComponent->BindAction("FireTarget", IE_Pressed, this, &AChuckinPlayerController::StartFireTarget);
 	InputComponent->BindAction("FireTarget", IE_Released, this, &AChuckinPlayerController::StopFireTarget);
 
-	InputComponent->BindAction("RestartPlayer", IE_Pressed, this, &AChuckinPlayerController::RestartPlayerNew);
+	InputComponent->BindAction("RestartPlayer", IE_Pressed, this, &AChuckinPlayerController::RestartLevelNew);
 	InputComponent->BindAction("Pause", IE_Pressed, this, &AChuckinPlayerController::PauseGame);
 
 }

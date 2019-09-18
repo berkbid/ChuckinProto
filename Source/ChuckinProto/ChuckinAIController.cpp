@@ -152,6 +152,7 @@ void AChuckinAIController::MoveTowardsPlayer()
 	{
 		// Must set focus to set focal point for AI to face towards focal point
 		//SetFocus(PlayerPawn);
+
 		// Flip AI car upright before moving towards player
 		FRotator NewRotation(0);
 		NewRotation.Yaw = ControlledPawn->GetActorRotation().Yaw;

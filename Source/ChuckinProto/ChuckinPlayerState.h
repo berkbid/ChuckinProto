@@ -27,6 +27,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "PlayerState")
 	float Lives;
 
+	// Set this here to persist when pawn dies
+	bool bShouldCameraBeLocked;
+
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerState")

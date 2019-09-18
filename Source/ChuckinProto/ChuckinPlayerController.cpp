@@ -12,6 +12,7 @@
 #include "ChuckinProtoGameMode.h"
 #include "BluePrint/WidgetBlueprintLibrary.h"
 #include "ChuckinGameState.h"
+#include "ChuckinProtoPawn.h"
 
 AChuckinPlayerController::AChuckinPlayerController()
 {
@@ -26,6 +27,21 @@ AChuckinPlayerController::AChuckinPlayerController()
 
 	TimeBetweenShots = 0.5f;
 	RateOfFire = 200.f;
+	bShouldCameraBeLocked = false;
+}
+
+// Override this, this allows player controller to setup Pawn values RIGHT when it is possessed.
+void AChuckinPlayerController::SetPawn(APawn* InPawn)
+{
+	Super::SetPawn(InPawn);
+
+	AChuckinProtoPawn* CPPS = Cast<AChuckinProtoPawn>(InPawn);
+	if (CPPS)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Possessing Pawn: %s"), *CPPS->GetName());
+		CPPS->bIsCameraLocked = bShouldCameraBeLocked;
+	}
+
 }
 
 void AChuckinPlayerController::BeginPlay()

@@ -16,6 +16,7 @@
 #include "GameFramework/Actor.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Uobject/UObjectBase.h"
 
 static int32 DebugAIDrawing = 0;
 FAutoConsoleVariableRef CVARDebugAIDrawing(
@@ -44,6 +45,12 @@ void AChuckinAIController::Tick(float Delta)
 
 		if (PlayerPawn)
 		{
+			// Hopefully this fixes progressing further in this Tick function and getting stuck on PlayerPawn->GetActorLocation() where the Pawn reference
+			// Must somehow become null during that function call, leading to the game crashing.
+			if (PlayerPawn->IsPendingKill())
+			{
+				return;
+			}
 			// For some reason, UE4 can crash here because PlayerPawn reference isn't valid? When player dies... no respawning screen, just crash
 			EndLocation = PlayerPawn->GetActorLocation();
 		}

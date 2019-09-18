@@ -45,6 +45,11 @@ protected:
 
 
 	void GetControlledPawnReference();
+
+	/* How close the AI should get to player before stoping movement */
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float AIDistanceToPlayer;
+
 public:
 	AChuckinAIController();
 

@@ -29,6 +29,7 @@ AChuckinAIController::AChuckinAIController()
 	// Default values for minimum and maximum seconds range for AI to fire
 	AITimeBetweenShotsMin = 3.f;
 	AITimeBetweenShotsMax = 7.f;
+	AIDistanceToPlayer = 1000.f;
 }
 
 
@@ -36,10 +37,17 @@ void AChuckinAIController::Tick(float Delta)
 {
 	Super::Tick(Delta);
 
-	if (ControlledPawn && PlayerPawn)
+	if (ControlledPawn)
 	{
 		FVector StartLocation = ControlledPawn->GetActorLocation();
-		FVector EndLocation = PlayerPawn->GetActorLocation();
+		FVector EndLocation(0);
+
+		if (PlayerPawn)
+		{
+			// For some reason, UE4 can crash here because PlayerPawn reference isn't valid? When player dies... no respawning screen, just crash
+			EndLocation = PlayerPawn->GetActorLocation();
+		}
+
 		FRotator LookRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, EndLocation);
 		LookRotation.Yaw += 90.f;
 		ControlledPawn->FaceRotation(LookRotation, 0.f);
@@ -160,7 +168,7 @@ void AChuckinAIController::MoveTowardsPlayer()
 		//MoveToActor(PlayerPawn, 650.f, true, true, true);
 
 		// Should Strafing be false:
-		MoveToActor(PlayerPawn, 650.f, true, true, false);
+		MoveToActor(PlayerPawn, AIDistanceToPlayer, true, true, false);
 	}
 }
 

@@ -21,7 +21,6 @@ public:
 	void LaunchProjectile(float speed);
 
 
-
 protected:
 
 	UPROPERTY(VisibleAnywhere, Category = Components)
@@ -32,6 +31,11 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = Components)
 	class URadialForceComponent* RadialForceComp;
+
+	/** Sphere component for player collision detection */
+	UPROPERTY(VisibleAnywhere, Category = Components)
+	class USphereComponent* SphereComp;
+
 
 	/** Azimuth Gimbal to attach Spring arm for camera to, for x direction mouse movement */
 	UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -74,7 +78,6 @@ protected:
 
 public:	
 
-	UFUNCTION()
-	void OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 };

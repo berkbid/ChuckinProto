@@ -99,6 +99,7 @@ public:
 
 	// Begin Actor interface
 	virtual void Tick(float Delta) override;
+
 protected:
 	virtual void BeginPlay() override;
 

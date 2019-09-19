@@ -19,5 +19,4 @@ void AChuckinPlayerState::AddScore(float ScoreDelta)
 void AChuckinPlayerState::RemoveLife()
 {
 	Lives = FMath::Clamp(Lives - 1.f, 0.f, DefaultNumOfLives);
-	//Lives -= 1;
 }

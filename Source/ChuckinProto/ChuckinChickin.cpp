@@ -150,7 +150,7 @@ void AChuckinChickin::Explode()
 void AChuckinChickin::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	if (!OtherActor) { return; }
-	UE_LOG(LogTemp, Warning, TEXT("OVERLAPPING: %s"), *OtherActor->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("OVERLAPPING: %s"), *OtherActor->GetName());
 	if (!bHasHit)
 	{
 		bHasHit = true;

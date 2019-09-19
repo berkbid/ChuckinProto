@@ -84,9 +84,13 @@ void AChuckinProtoGameMode::BeginPlay()
 
 void AChuckinProtoGameMode::HandleActorKilled(AActor* VictimActor, AActor* KillerActor, AController* KillerController)
 {
-	if (VictimActor && KillerActor && KillerController)
+	// If we have no victim actor to kill, return
+	if (!VictimActor) { return; }
+
+	// If we are given a killercontroller, try to addscore to it
+	if (KillerController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Actor Died: %s, Killed by : %s"), *VictimActor->GetName(), *KillerActor->Instigator->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Actor Died: %s, Killed by : %s"), *VictimActor->GetName(), *KillerActor->Instigator->GetName());
 
 		AChuckinProtoPawn* KillerPawn = Cast<AChuckinProtoPawn>(KillerController->GetPawn());
 		if (KillerPawn)
@@ -98,39 +102,41 @@ void AChuckinProtoGameMode::HandleActorKilled(AActor* VictimActor, AActor* Kille
 				KillerPS->AddScore(10.f);
 			}
 		}
-		APawn* VictimPawn = Cast<APawn>(VictimActor);
+	}
+
+	AChuckinProtoPawn* VictimProtoPawn = Cast<AChuckinProtoPawn>(VictimActor);
+
+	// If we are handling a player death
+	if (VictimProtoPawn)
+	{
+		APawn* VictimPawn = Cast<APawn>(VictimProtoPawn);
 		if (VictimPawn)
 		{
-			AChuckinPlayerState* VictimPS = Cast<AChuckinPlayerState>(VictimPawn->GetPlayerState());
-
-			// This means the victim has AChuckinPlayerState thus must be a player not an AI
-			if (VictimPS)
+			APlayerState* PS = VictimPawn->GetPlayerState();
+			if (PS)
 			{
-				VictimPS->RemoveLife();
-				if (VictimPS->Lives <= 0)
+				AChuckinPlayerState* VictimPS = Cast<AChuckinPlayerState>(PS);
+				// This means the victim has AChuckinPlayerState thus must be a player not an AI
+				if (VictimPS)
 				{
-					GameOver();
+					VictimPS->RemoveLife();
+					if (VictimPS->Lives <= 0)
+					{
+						GameOver();
+					}
 				}
-				else
-				{
-					PrepareForSpawn();
-				}
-				
 			}
-			// Handle AI dying
-			else
-			{
-				CheckAIAlive();
-			}
-			
 		}
-	}
-	// Destroy the victim actor here after everything has been taken care of
-	if (VictimActor)
-	{
+		// Destroy actor here
 		VictimActor->Destroy();
+		PrepareForSpawn();
 	}
-
+	else
+	{
+		// Destroy actor here
+		VictimActor->Destroy();
+		CheckAIAlive();
+	}
 }
 
 void AChuckinProtoGameMode::PrepareForSpawn()

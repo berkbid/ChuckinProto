@@ -19,8 +19,6 @@ class AChuckinProtoGameMode : public AGameModeBase
 public:
 	AChuckinProtoGameMode();
 
-	//virtual void Tick(float DeltaSeconds) override;
-
 	virtual void StartPlay() override;
 
 	void PrepareForSpawn();
@@ -66,6 +64,8 @@ protected:
 	FTimerHandle TimerHandle_NextWaveStart;
 
 	FTimerHandle TimerHandle_AISpawn;
+
+	FTimerHandle TimerHandle_CheckAIAlive;
 
 	UPROPERTY(EditDefaultsOnly, Category = "GameMode")
 	float TimeBetweenWaves;

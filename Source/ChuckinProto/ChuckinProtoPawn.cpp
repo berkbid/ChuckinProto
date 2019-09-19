@@ -30,6 +30,7 @@
 #include "Math/TransformNonVectorized.h"
 #include "ChuckinPlayerState.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Components/WidgetComponent.h"
 
 #ifndef HMD_MODULE_INCLUDED
 #define HMD_MODULE_INCLUDED 0
@@ -243,6 +244,9 @@ AChuckinProtoPawn::AChuckinProtoPawn()
 
 	// NEW STUFF
 	HealthComp = CreateDefaultSubobject<UChuckinHealthComponent>("HealthComp"); 
+
+	//LivesWidgetComp = CreateDefaultSubobject<UWidgetComponent>("LivesWidgetComp");
+	//LivesWidgetComp->SetupAttachment(RootComponent);
 
 	// bullets per minute
 	RateOfFire = 50.f;

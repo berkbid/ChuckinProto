@@ -56,6 +56,10 @@ class AChuckinProtoPawn : public AWheeledVehicle
 	UPROPERTY(Category = Health, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UChuckinHealthComponent* HealthComp;
 
+	///** Health component for player health */
+	//UPROPERTY(Category = Display, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	//class UWidgetComponent* LivesWidgetComp;
+
 public:
 	AChuckinProtoPawn();
 

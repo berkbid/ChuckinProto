@@ -224,22 +224,19 @@ void AChuckinProtoGameMode::PrepareForNextWave()
 	else
 	{
 		SetWaveState(EWaveState::WaitingToStart);
-		// Make sure we have correct num of ai to spawn value
+
+		// Make sure we have correct NumberOfAIToSpawn value for when we call PC-ShowGameState() it uses this value for wave information
 		NumberOfAIToSpawn = NumAIAddedPerWave * (WaveNumber + 1);
-		// Display wave information
+
+		// Display wave information to viewport
 		AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetWorld()->GetFirstPlayerController());
 		if (PC)
 		{
 			PC->ShowGameState();
 		}
-		//UE_LOG(LogTemp, Warning, TEXT("Prepare For Wave #%d"), WaveNumber + 1);
 
 		GetWorldTimerManager().SetTimer(TimerHandle_NextWaveStart, this, &AChuckinProtoGameMode::StartWave, TimeBetweenWaves, false);
-
-		
 	}
-
-
 }
 
 void AChuckinProtoGameMode::SpawnAITimerElapsed()

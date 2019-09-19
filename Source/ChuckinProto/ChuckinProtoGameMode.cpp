@@ -22,11 +22,12 @@ AChuckinProtoGameMode::AChuckinProtoGameMode()
 	//PrimaryActorTick.TickInterval = 1.f;
 
 	TimeBeforeStart = 3.f;
-	NumberOfAIToSpawn = 3;
 	WaveNumber = 0;
 	TimeBetweenWaves = 2.f;
 	NumAIAddedPerWave = 10;
 	NumberOfWavesForVictory = 2;
+
+	NumberOfAIToSpawn = NumAIAddedPerWave;
 
 	// Set Default Pawn Class From Blueprint
 	static ConstructorHelpers::FClassFinder<AChuckinProtoPawn> PlayerPawnClassFinder(TEXT("/Game/Blueprints/BP_CarPawn"));
@@ -223,7 +224,8 @@ void AChuckinProtoGameMode::PrepareForNextWave()
 	else
 	{
 		SetWaveState(EWaveState::WaitingToStart);
-
+		// Make sure we have correct num of ai to spawn value
+		NumberOfAIToSpawn = NumAIAddedPerWave * (WaveNumber + 1);
 		// Display wave information
 		AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetWorld()->GetFirstPlayerController());
 		if (PC)

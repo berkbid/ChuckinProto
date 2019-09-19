@@ -73,13 +73,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "GameMode")
 	float TimeBeforeStart;
 
-	UPROPERTY(EditDefaultsOnly, Category = "GameMode")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GameMode")
 	int32 NumAIAddedPerWave;
 
 	UPROPERTY(EditDefaultsOnly, Category = "GameMode")
 	int32 NumberOfWavesForVictory;
 
 	// How many AI we are spawning this wave
+	UPROPERTY(BlueprintReadOnly, Category = "GameMode")
 	int32 NumberOfAIToSpawn;
 
 	UPROPERTY(BlueprintReadOnly, Category = "GameMode")

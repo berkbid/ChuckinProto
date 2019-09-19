@@ -13,6 +13,7 @@
 #include "ChuckinProtoPawn.h"
 #include "ChuckinAI.h"
 #include "Engine/StaticMeshActor.h"
+#include "Components/SphereComponent.h"
 
 static int32 DebugChickenDrawing = 0;
 FAutoConsoleVariableRef CVARDebugChickenDrawing(
@@ -51,6 +52,18 @@ AChuckinChickin::AChuckinChickin()
 	RadialForceComp->bAutoActivate = false; // Prevent component from ticking, and only use FireImpulse() instead
 	RadialForceComp->bIgnoreOwningActor = true; // ignore self
 
+	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
+	SphereComp->SetRelativeLocation(FVector(0.f, -30.f, 25.f));
+	SphereComp->SetSphereRadius(50.f);
+	// Make sure we dont get any overlaps we dont need
+	SphereComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	// Allow overlaps with car and trucks only
+	//SphereComp->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Overlap);
+	//SphereComp->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Overlap);
+	SphereComp->SetupAttachment(RootComponent);
+
 	// Explosion default values
 	SecondsTillExplode = 1.f;
 	DamageRadius = 300.f;
@@ -75,7 +88,7 @@ void AChuckinChickin::BeginPlay()
 	Super::BeginPlay();
 
 	OnDestroyed.AddDynamic(this, &AChuckinChickin::MyOnDestroyed);
-	MeshComp->OnComponentHit.AddDynamic(this, &AChuckinChickin::OnCompHit);
+	//MeshComp->OnComponentHit.AddDynamic(this, &AChuckinChickin::OnCompHit);
 	// Only hook onto the OnComponentHit event if we want to explode on hit
 	if (!bExpldeOnHit)
 	{		
@@ -89,10 +102,20 @@ void AChuckinChickin::BeginPlay()
 		if (Cast<AChuckinAI>(Instigator))
 		{
 			MeshComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECR_Ignore);
+			if (SphereComp)
+			{
+				SphereComp->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Overlap);
+			}
+			
 		}
 		else
 		{
 			MeshComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel3, ECR_Ignore);
+			if (SphereComp)
+			{
+				SphereComp->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Overlap);
+			}
+			
 		}
 	}
 
@@ -124,40 +147,34 @@ void AChuckinChickin::Explode()
 	Destroy();
 }
 
-// This event will only be called if bExplodeOnHit is set to true
-void AChuckinChickin::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void AChuckinChickin::NotifyActorBeginOverlap(AActor* OtherActor)
 {
+	if (!OtherActor) { return; }
+	UE_LOG(LogTemp, Warning, TEXT("OVERLAPPING: %s"), *OtherActor->GetName());
 	if (!bHasHit)
 	{
 		bHasHit = true;
 	}	
 
-	if (!Cast<AStaticMeshActor>(Hit.Actor))
+	if (Cast<AChuckinProtoPawn>(OtherActor))
 	{
-		if (Cast<AChuckinProtoPawn>(Hit.Actor))
-		{
-			if (Hit.Actor != GetOwner())
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Chicken Hit ACTOR: %s"), *Hit.Actor->GetName());
-				Explode();
-			}
-		}
-		else if (Cast<AChuckinAI>(Hit.Actor))
-		{
-			if (Hit.Actor != Instigator)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Chicken Hit AI ACTOR: %s, Instigator: %s"), *Hit.Actor->GetName(), *Instigator->GetName());
-				Explode();
-			}
-
-		}
-		else if (Cast<AActor>(Hit.Actor))
+		if (OtherActor != GetOwner())
 		{
 			Explode();
 		}
 	}
+	else if (Cast<AChuckinAI>(OtherActor))
+	{
+		if (OtherActor != Instigator)
+		{
 
+			Explode();
+		}
 
+	}
+
+	//Explode();
+	
 	if (bExpldeOnHit)
 	{		
 		if (!bIsExploded)

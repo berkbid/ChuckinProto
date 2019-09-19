@@ -61,7 +61,7 @@ void UChuckinHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Da
 	}
 
 	Health = FMath::Clamp(Health - Damage, 0.f, DefaultHealth);
-	UE_LOG(LogTemp, Warning, TEXT("%s New Health: %f"), *DamagedActor->GetName(), Health);
+	//UE_LOG(LogTemp, Warning, TEXT("%s New Health: %f"), *DamagedActor->GetName(), Health);
 	// Check if we are dead with new health amount
 	if (Health <= 0.f)
 	{

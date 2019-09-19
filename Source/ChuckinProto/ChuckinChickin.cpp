@@ -25,11 +25,6 @@ FAutoConsoleVariableRef CVARDebugChickenDrawing(
 // Sets default values
 AChuckinChickin::AChuckinChickin()
 {
-
-	// Craete Azimuth Gimbal to attach Spring Arm to
-	//AzimuthGimbal = CreateDefaultSubobject<USceneComponent>("AzimuthGimbal");
-	//RootComponent = AzimuthGimbal;
-
 	// Create and setup a StaticMeshComponent
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetSimulatePhysics(true);

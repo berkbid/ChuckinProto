@@ -17,10 +17,6 @@
 
 AChuckinProtoGameMode::AChuckinProtoGameMode()
 {
-	//PrimaryActorTick.bCanEverTick = true;
-	// Set tick interval to 1 second
-	//PrimaryActorTick.TickInterval = 1.f;
-
 	TimeBeforeStart = 3.f;
 	WaveNumber = 0;
 	TimeBetweenWaves = 2.f;
@@ -71,6 +67,9 @@ void AChuckinProtoGameMode::StartPlay()
 	Super::StartPlay();
 
 	PrepareForNextWave();
+
+	GetWorldTimerManager().SetTimer(TimerHandle_CheckAIAlive, this, &AChuckinProtoGameMode::CheckAIAlive, 5.f, true, 10.f);
+	
 }
 
 void AChuckinProtoGameMode::BeginPlay()
@@ -124,12 +123,15 @@ void AChuckinProtoGameMode::HandleActorKilled(AActor* VictimActor, AActor* Kille
 					{
 						GameOver();
 					}
+					else
+					{
+						PrepareForSpawn();
+					}
 				}
 			}
 		}
 		// Destroy actor here
 		VictimActor->Destroy();
-		PrepareForSpawn();
 	}
 	else
 	{
@@ -155,7 +157,7 @@ void AChuckinProtoGameMode::StartWave()
 	WaveNumber++;
 
 	NumberOfAIToSpawn = NumAIAddedPerWave * WaveNumber;
-	UE_LOG(LogTemp, Warning, TEXT("Starting Wave: Spawning %d AI TRUCKS"), NumberOfAIToSpawn);
+	//UE_LOG(LogTemp, Warning, TEXT("Starting Wave: Spawning %d AI TRUCKS"), NumberOfAIToSpawn);
 
 	// Remove GameState information (wave information) from viewport
 	AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetWorld()->GetFirstPlayerController());
@@ -182,6 +184,7 @@ void AChuckinProtoGameMode::GameOver()
 {
 	EndWave();
 	SetWaveState(EWaveState::GameOver);
+	GetWorldTimerManager().ClearTimer(TimerHandle_CheckAIAlive);
 
 	AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PC)
@@ -196,6 +199,7 @@ void AChuckinProtoGameMode::GameWon()
 {
 	EndWave();
 	SetWaveState(EWaveState::GameWon);
+	GetWorldTimerManager().ClearTimer(TimerHandle_CheckAIAlive);
 
 	AChuckinPlayerController* PC = Cast<AChuckinPlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PC)
@@ -259,6 +263,7 @@ void AChuckinProtoGameMode::SpawnAITimerElapsed()
 
 void AChuckinProtoGameMode::CheckAIAlive()
 {
+	//UE_LOG(LogTemp, Warning, TEXT("Checking AI Alive"));
 	bool bIsPreparingForWave = GetWorldTimerManager().IsTimerActive(TimerHandle_NextWaveStart);
 
 	// Never want to prepare for next wave if already preparing or if still have bots to spawn

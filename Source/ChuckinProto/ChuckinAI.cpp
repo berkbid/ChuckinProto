@@ -12,6 +12,7 @@
 AChuckinAI::AChuckinAI()
 {
 
+
 	// Create and setup a StaticMeshComponent
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetSimulatePhysics(true);

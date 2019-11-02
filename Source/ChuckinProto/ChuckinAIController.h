@@ -18,6 +18,15 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	virtual void BeginInactiveState() override;
+
+	virtual void EndInactiveState() override;
+
+	virtual void OnPossess(APawn* InPawn) override;
+
+	virtual void OnUnPossess() override;
+
+	UFUNCTION(BlueprintCallable)
 	void FireAtPlayer();
 
 	FTimerHandle TimerHandle_TimeBetweenShots;
@@ -63,4 +72,10 @@ private:
 
 	class AChuckinProtoPawn* PlayerPawn;
 	class AChuckinAI* ControlledPawn;
+
+	void StopAllActions();
+
+	void StartAllActions();
+
+	//bool bCanTick;
 };

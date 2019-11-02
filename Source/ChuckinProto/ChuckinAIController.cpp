@@ -27,38 +27,50 @@ FAutoConsoleVariableRef CVARDebugAIDrawing(
 
 AChuckinAIController::AChuckinAIController()
 {
+	//PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 	// Default values for minimum and maximum seconds range for AI to fire
 	AITimeBetweenShotsMin = 3.f;
 	AITimeBetweenShotsMax = 7.f;
 	AIDistanceToPlayer = 1000.f;
+
+	// This makes the AIControllers persistent, and logic for starting/stopping the actions are already setup in
+	// OnPossess and OnUnPossess override methods
+	//bWantsPlayerState = true;
+
 }
 
 
 void AChuckinAIController::Tick(float Delta)
 {
+	// Need to halt tick function upon Pawn Destruction
 	Super::Tick(Delta);
+
+	//if (!bCanTick) { return; }
+	//UE_LOG(LogTemp, Warning, TEXT("Ticking"));
+	FVector EndLocation(0);
+
+	if (PlayerPawn)
+	{
+		// Hopefully this fixes progressing further in this Tick function and getting stuck on PlayerPawn->GetActorLocation() where the Pawn reference
+		// Must somehow become null during that function call, leading to the game crashing.
+		if (PlayerPawn->IsPendingKill())
+		{
+			return;
+		}
+		// For some reason, UE4 can crash here because PlayerPawn reference isn't valid? When player dies... no respawning screen, just crash
+		EndLocation = PlayerPawn->GetActorLocation();
+	}
 
 	if (ControlledPawn)
 	{
 		FVector StartLocation = ControlledPawn->GetActorLocation();
-		FVector EndLocation(0);
-
-		if (PlayerPawn)
-		{
-			// Hopefully this fixes progressing further in this Tick function and getting stuck on PlayerPawn->GetActorLocation() where the Pawn reference
-			// Must somehow become null during that function call, leading to the game crashing.
-			if (PlayerPawn->IsPendingKill())
-			{
-				return;
-			}
-			// For some reason, UE4 can crash here because PlayerPawn reference isn't valid? When player dies... no respawning screen, just crash
-			EndLocation = PlayerPawn->GetActorLocation();
-		}
-
 		FRotator LookRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, EndLocation);
 		LookRotation.Yaw += 90.f;
+		// We have controllers alive with no controlled pawn
 		ControlledPawn->FaceRotation(LookRotation, 0.f);
 	}
+	
 }
 
 
@@ -85,28 +97,73 @@ void AChuckinAIController::HandlePlayerDestroyed(AActor* Act)
 
 }
 
-void AChuckinAIController::BeginPlay()
+void AChuckinAIController::StopAllActions()
 {
-	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("Stopping Tick"));
+	//bCanTick = false;
+	SetActorTickEnabled(false);
+	// Stop AI movement when player has died
+	StopMovement();
 
+	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenMoveTo);
+	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
+}
+
+void AChuckinAIController::StartAllActions()
+{
 	// Grab reference to the Pawn this AI Controller is possessing
 	GetControlledPawnReference();
 
 	// Grab reference to the Pawn of the human player, to use for location etc.
 	GetPlayerReference();
 
+	//bCanTick = true;
+	SetActorTickEnabled(true);
 	// Create random amount of time to fire chicken
 	AITimeBetweenShots = FMath::RandRange(AITimeBetweenShotsMin, AITimeBetweenShotsMax);
-
-	//NextPathPoint = GetNextPathPoint();
-	//MoveTowardsPlayer();
 
 	// Every 5 seconds Move towards player
 	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenMoveTo, this, &AChuckinAIController::MoveTowardsPlayer, 5.f, true, 2.f);
 
 	// Call FireAtPlayer() function looping
 	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AChuckinAIController::FireAtPlayer, AITimeBetweenShots, true, AITimeBetweenShots);
+}
 
+void AChuckinAIController::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
+
+// We Begin Inactive State when AController::PawnPendingDestroy() is called from APawn::Destroyed() into APawn::DetachFromControllerPendingDestroy()
+// This State gets set, AFTER Pawn->UnPossessed() AND Controller->UnPossessed() is called
+void AChuckinAIController::BeginInactiveState()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("Beginning Inactive State"));
+	//bCanTick = false;
+}
+
+// THIS WILL ONLY BE CALLED IF (In OnPossess() of AIController.cpp) bWantsPlayerState = true !! NEEDS PLAYER STATE FOR THIS
+// Also requires current state to be NAME_Inactive before OnPossess is called... which it isn't
+void AChuckinAIController::EndInactiveState()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("Ending Inactive State"));
+	//bCanTick = true;
+}
+
+// STATE GETS SET TO "PLAYING" IN AIController.cpp
+void AChuckinAIController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	StartAllActions();
+}
+
+void AChuckinAIController::OnUnPossess()
+{
+	Super::OnUnPossess();
+
+	StopAllActions();
 }
 
 void AChuckinAIController::FireAtPlayer()
@@ -119,7 +176,7 @@ void AChuckinAIController::FireAtPlayer()
 	GetControlledPawnReference();
 	if (!PlayerPawn) { return; }
 	if (!ControlledPawn) { return; }
-	
+	//UE_LOG(LogTemp, Warning, TEXT("AI FIRING: AI Pawn: %s, Player Pawn: %s"), *ControlledPawn->GetName(), *PlayerPawn->GetName());
 	FVector StartLocation = ControlledPawn->GetActorLocation();
 
 	FVector HitLocation = PlayerPawn->GetTargetLocation();

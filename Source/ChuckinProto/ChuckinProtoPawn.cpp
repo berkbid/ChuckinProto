@@ -30,6 +30,7 @@
 #include "Math/TransformNonVectorized.h"
 #include "ChuckinPlayerState.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "CWheeledVehicleMovementComponent.h"
 
 #ifndef HMD_MODULE_INCLUDED
 #define HMD_MODULE_INCLUDED 0
@@ -93,7 +94,8 @@ void AChuckinProtoPawn::FireAt()
 
 #define LOCTEXT_NAMESPACE "VehiclePawn"
 
-AChuckinProtoPawn::AChuckinProtoPawn()
+AChuckinProtoPawn::AChuckinProtoPawn(const FObjectInitializer& ObjectInitializer) 
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UCWheeledVehicleMovementComponent>(VehicleMovementComponentName))
 {
 	// Car mesh
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CarMesh(TEXT("/Game/VehicleAdv/Vehicle/Vehicle_SkelMesh.Vehicle_SkelMesh"));

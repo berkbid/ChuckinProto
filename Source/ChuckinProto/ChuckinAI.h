@@ -24,10 +24,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = Components)
 	class UFloatingPawnMovement* MovementComp;
 
-	/** Azimuth Gimbal to attach Spring arm for camera to, for x direction mouse movement */
-	//UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	//class USceneComponent* AzimuthGimbal;
-
 		/** Health component for player health */
 	UPROPERTY(Category = Health, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UChuckinHealthComponent* HealthComp;

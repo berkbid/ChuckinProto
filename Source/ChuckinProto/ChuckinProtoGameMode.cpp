@@ -78,6 +78,7 @@ void AChuckinProtoGameMode::BeginPlay()
 
 	// This is custom event we call from healthcomponent when an actor reaches 0 health
 	OnActorKilled.AddDynamic(this, &AChuckinProtoGameMode::HandleActorKilled);
+	//UE_LOG(LogTemp, Warning, TEXT("BEGINPLAY GAME MODE CPP"));
 
 }
 

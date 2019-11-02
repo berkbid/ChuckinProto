@@ -61,7 +61,7 @@ class AChuckinProtoPawn : public AWheeledVehicle
 	//class UWidgetComponent* LivesWidgetComp;
 
 public:
-	AChuckinProtoPawn();
+	AChuckinProtoPawn(const FObjectInitializer& ObjectInitializer);
 
 	/** The current speed as a string eg 10 km/h */
 	UPROPERTY(Category = Display, VisibleDefaultsOnly, BlueprintReadOnly)

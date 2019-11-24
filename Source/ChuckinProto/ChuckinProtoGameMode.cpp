@@ -25,12 +25,12 @@ AChuckinProtoGameMode::AChuckinProtoGameMode()
 
 	NumberOfAIToSpawn = NumAIAddedPerWave;
 
-	// Set Default Pawn Class From Blueprint
-	static ConstructorHelpers::FClassFinder<AChuckinProtoPawn> PlayerPawnClassFinder(TEXT("/Game/Blueprints/BP_CarPawn"));
-	if (PlayerPawnClassFinder.Succeeded())
-	{
-		DefaultPawnClass = PlayerPawnClassFinder.Class;
-	}
+	//// Set Default Pawn Class From Blueprint
+	//static ConstructorHelpers::FClassFinder<AChuckinProtoPawn> PlayerPawnClassFinder(TEXT("/Game/Blueprints/BP_CarPawn"));
+	//if (PlayerPawnClassFinder.Succeeded())
+	//{
+	//	DefaultPawnClass = PlayerPawnClassFinder.Class;
+	//}
 
 	// Set Default GameState Class From Blueprint
 	static ConstructorHelpers::FClassFinder<AChuckinGameState> GameStateClassFinder(TEXT("/Game/Blueprints/BP_GameState"));

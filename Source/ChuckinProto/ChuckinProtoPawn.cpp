@@ -535,11 +535,9 @@ void AChuckinProtoPawn::LookUpNew(float Val)
 {
 	if (bIsCameraLocked) { return; }
 
-	FRotator LocalRotate(0);
-	LocalRotate.Pitch = Val;
 	if (SpringArm)
 	{
-		SpringArm->AddLocalRotation(LocalRotate);
+		SpringArm->AddLocalRotation(FRotator(Val, 0.f, 0.f));
 	}
 }
 
@@ -547,12 +545,11 @@ void AChuckinProtoPawn::LookRightNew(float Val)
 {
 	if (bIsCameraLocked) { return; }
 
-	FRotator LocalRotate(0);
-	LocalRotate.Yaw = Val;
 	if (AzimuthGimbal)
 	{
-		AzimuthGimbal->AddLocalRotation(LocalRotate);
+		AzimuthGimbal->AddLocalRotation(FRotator(0.f, Val, 0.f));
 	}
+
 }
 
 #undef LOCTEXT_NAMESPACE

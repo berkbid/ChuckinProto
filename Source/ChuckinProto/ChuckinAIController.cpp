@@ -27,8 +27,8 @@ FAutoConsoleVariableRef CVARDebugAIDrawing(
 
 AChuckinAIController::AChuckinAIController()
 {
-	//PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
+
 	// Default values for minimum and maximum seconds range for AI to fire
 	AITimeBetweenShotsMin = 3.f;
 	AITimeBetweenShotsMax = 7.f;
@@ -46,28 +46,25 @@ void AChuckinAIController::Tick(float Delta)
 	// Need to halt tick function upon Pawn Destruction
 	Super::Tick(Delta);
 
-	//if (!bCanTick) { return; }
-	//UE_LOG(LogTemp, Warning, TEXT("Ticking"));
 	FVector EndLocation(0);
 
 	if (PlayerPawn)
 	{
 		// Hopefully this fixes progressing further in this Tick function and getting stuck on PlayerPawn->GetActorLocation() where the Pawn reference
 		// Must somehow become null during that function call, leading to the game crashing.
-		if (PlayerPawn->IsPendingKill())
-		{
-			return;
-		}
+		if (PlayerPawn->IsPendingKill()) { return; }
+
 		// For some reason, UE4 can crash here because PlayerPawn reference isn't valid? When player dies... no respawning screen, just crash
 		EndLocation = PlayerPawn->GetActorLocation();
 	}
 
 	if (ControlledPawn)
 	{
+		// Face AI pawn towards target at all times
 		FVector StartLocation = ControlledPawn->GetActorLocation();
 		FRotator LookRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, EndLocation);
+		// Manually rotate pawn since it's original forward direction is wrong
 		LookRotation.Yaw += 90.f;
-		// We have controllers alive with no controlled pawn
 		ControlledPawn->FaceRotation(LookRotation, 0.f);
 	}
 	
@@ -99,12 +96,12 @@ void AChuckinAIController::HandlePlayerDestroyed(AActor* Act)
 
 void AChuckinAIController::StopAllActions()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Stopping Tick"));
-	//bCanTick = false;
 	SetActorTickEnabled(false);
+
 	// Stop AI movement when player has died
 	StopMovement();
 
+	// Clear active timers
 	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenMoveTo);
 	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
 }
@@ -140,7 +137,6 @@ void AChuckinAIController::BeginPlay()
 void AChuckinAIController::BeginInactiveState()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Beginning Inactive State"));
-	//bCanTick = false;
 }
 
 // THIS WILL ONLY BE CALLED IF (In OnPossess() of AIController.cpp) bWantsPlayerState = true !! NEEDS PLAYER STATE FOR THIS
@@ -148,7 +144,6 @@ void AChuckinAIController::BeginInactiveState()
 void AChuckinAIController::EndInactiveState()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Ending Inactive State"));
-	//bCanTick = true;
 }
 
 // STATE GETS SET TO "PLAYING" IN AIController.cpp
@@ -176,7 +171,7 @@ void AChuckinAIController::FireAtPlayer()
 	GetControlledPawnReference();
 	if (!PlayerPawn) { return; }
 	if (!ControlledPawn) { return; }
-	//UE_LOG(LogTemp, Warning, TEXT("AI FIRING: AI Pawn: %s, Player Pawn: %s"), *ControlledPawn->GetName(), *PlayerPawn->GetName());
+
 	FVector StartLocation = ControlledPawn->GetActorLocation();
 
 	FVector HitLocation = PlayerPawn->GetTargetLocation();
@@ -215,10 +210,7 @@ void AChuckinAIController::MoveTowardsPlayer()
 		NewRotation.Yaw = ControlledPawn->GetActorRotation().Yaw;
 		ControlledPawn->SetActorRotation(NewRotation, ETeleportType::TeleportPhysics);
 
-		// Move towards actor
-		//MoveToActor(PlayerPawn, 650.f, true, true, true);
-		
-		// Should Strafing be false:
+		// Move to target actor using navigation
 		MoveToActor(PlayerPawn, AIDistanceToPlayer, true, true, false);
 	}
 }
